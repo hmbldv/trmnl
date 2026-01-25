@@ -1,0 +1,118 @@
+# =============================================================================
+# ktty-trmnl-tmx :: Starship Prompt Config
+# =============================================================================
+
+# Timeout for commands (ms)
+command_timeout = 1000
+
+# -----------------------------------------------------------------------------
+# Prompt Format
+# -----------------------------------------------------------------------------
+format = """
+$custom\
+$directory\
+$git_branch\
+$git_status\
+$python\
+$nodejs\
+$rust\
+$golang\
+$docker_context\
+$kubernetes\
+$cmd_duration\
+$line_break\
+$character"""
+
+# -----------------------------------------------------------------------------
+# Disabled Modules
+# -----------------------------------------------------------------------------
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[azure]
+disabled = true
+
+# -----------------------------------------------------------------------------
+# Custom Host Icon
+# Set STARSHIP_HOST_ICON in host-specific zsh config
+# -----------------------------------------------------------------------------
+[custom.host]
+command = "echo $STARSHIP_HOST_ICON"
+when = "test -n \"$STARSHIP_HOST_ICON\""
+format = "[$output ]($style)"
+style = "white"
+
+# -----------------------------------------------------------------------------
+# Directory
+# -----------------------------------------------------------------------------
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+style = "blue bold"
+
+# -----------------------------------------------------------------------------
+# Git
+# -----------------------------------------------------------------------------
+[git_branch]
+format = "[$symbol$branch]($style) "
+style = "purple"
+
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "red"
+
+# -----------------------------------------------------------------------------
+# Languages (only show when relevant)
+# -----------------------------------------------------------------------------
+[python]
+format = "[$symbol$version]($style) "
+symbol = " "
+style = "yellow"
+
+[nodejs]
+format = "[$symbol$version]($style) "
+symbol = " "
+style = "green"
+
+[rust]
+format = "[$symbol$version]($style) "
+symbol = " "
+style = "red"
+
+[golang]
+format = "[$symbol$version]($style) "
+symbol = " "
+style = "cyan"
+
+# -----------------------------------------------------------------------------
+# Infrastructure
+# -----------------------------------------------------------------------------
+[docker_context]
+format = "[$symbol$context]($style) "
+symbol = " "
+style = "blue"
+only_with_files = true
+
+[kubernetes]
+format = "[$symbol$context]($style) "
+symbol = "☸ "
+style = "cyan"
+disabled = false
+
+# -----------------------------------------------------------------------------
+# Command Duration
+# -----------------------------------------------------------------------------
+[cmd_duration]
+min_time = 2000
+format = "[$duration]($style) "
+style = "yellow"
+
+# -----------------------------------------------------------------------------
+# Prompt Character
+# -----------------------------------------------------------------------------
+[character]
+success_symbol = "[❯](green)"
+error_symbol = "[❯](red)"

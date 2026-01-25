@@ -1,0 +1,91 @@
+# =============================================================================
+# ktty-trmnl-tmx :: ZSH Configuration
+# Cross-platform zsh config with Starship prompt
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# History
+# -----------------------------------------------------------------------------
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt HIST_IGNORE_DUPS      # Don't record duplicates
+setopt HIST_IGNORE_SPACE     # Don't record commands starting with space
+setopt SHARE_HISTORY         # Share history between sessions
+setopt HIST_REDUCE_BLANKS    # Remove unnecessary blanks
+setopt HIST_VERIFY           # Show command before executing from history
+
+# -----------------------------------------------------------------------------
+# Options
+# -----------------------------------------------------------------------------
+setopt AUTO_CD               # cd by typing directory name
+setopt CORRECT               # Spell correction for commands
+setopt COMPLETE_IN_WORD      # Complete from both ends of cursor
+setopt INTERACTIVE_COMMENTS  # Allow comments in interactive shell
+
+# -----------------------------------------------------------------------------
+# Key Bindings (emacs style)
+# -----------------------------------------------------------------------------
+bindkey -e
+bindkey '^[[A' history-search-backward  # Up arrow
+bindkey '^[[B' history-search-forward   # Down arrow
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+autoload -Uz compinit && compinit
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'  # Case insensitive
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"    # Colored completions
+
+# -----------------------------------------------------------------------------
+# Aliases (shared)
+# -----------------------------------------------------------------------------
+source "${0:A:h}/aliases.zsh" 2>/dev/null || true
+
+# -----------------------------------------------------------------------------
+# Platform Detection & Plugins
+# -----------------------------------------------------------------------------
+case "$(uname -s)" in
+    Darwin)
+        # macOS
+        export STARSHIP_HOST_ICON=""
+
+        # Homebrew plugin paths
+        if [[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+            source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+        fi
+        if [[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+            source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+        fi
+
+        # Homebrew paths
+        export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+        ;;
+    Linux)
+        # Linux
+        export STARSHIP_HOST_ICON=""
+
+        # System plugin paths
+        if [[ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+            source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+        elif [[ -f ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+            source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+        fi
+        if [[ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+            source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+        elif [[ -f ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+            source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+        fi
+
+        # Local bin
+        export PATH="$HOME/.local/bin:$PATH"
+        ;;
+esac
+
+# -----------------------------------------------------------------------------
+# Starship Prompt (must be at the end)
+# -----------------------------------------------------------------------------
+if command -v starship &>/dev/null; then
+    eval "$(starship init zsh)"
+fi
