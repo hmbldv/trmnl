@@ -280,6 +280,12 @@ link_kitty() {
     ln -sf "$REPO_DIR/kitty/kitty.conf" "$KITTY_CONFIG/kitty.conf"
     ln -sf "$REPO_DIR/kitty/themes" "$KITTY_CONFIG/themes"
 
+    # Copy app icon (symlink doesn't work for icons)
+    if [ -f "$REPO_DIR/kitty/kitty.app.png" ]; then
+        cp "$REPO_DIR/kitty/kitty.app.png" "$KITTY_CONFIG/kitty.app.png"
+        info "Kitty icon installed"
+    fi
+
     info "Kitty config linked"
 }
 
