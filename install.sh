@@ -640,6 +640,58 @@ link_gitmux() {
     info "gitmux config linked"
 }
 
+# Prompt to change default shell to zsh
+prompt_change_shell() {
+    # Check if zsh is available
+    if ! command -v zsh &>/dev/null; then
+        warn "zsh not found, skipping shell change prompt"
+        return
+    fi
+
+    # Check if already using zsh
+    local current_shell
+    current_shell=$(basename "$SHELL")
+    if [[ "$current_shell" == "zsh" ]]; then
+        info "Default shell is already zsh"
+        return
+    fi
+
+    echo ""
+    echo "================================"
+    echo "  Default Shell"
+    echo "================================"
+    echo ""
+    echo "Your current default shell is: $current_shell"
+    echo "This configuration is designed for zsh."
+    echo ""
+
+    if [[ "$IS_SSH" == "true" ]]; then
+        echo "${YELLOW}Note: You're connected via SSH. After changing your shell,"
+        echo "      you'll need to reconnect for it to take effect.${NC}"
+        echo ""
+    fi
+
+    read -p "Change default shell to zsh? [y/N]: " change_shell
+    if [[ "$change_shell" =~ ^[Yy]$ ]]; then
+        local zsh_path
+        zsh_path=$(which zsh)
+        if chsh -s "$zsh_path"; then
+            info "Default shell changed to zsh"
+            if [[ "$IS_SSH" == "true" ]]; then
+                echo ""
+                echo "${GREEN}Reconnect to your SSH session to use zsh.${NC}"
+            else
+                echo ""
+                echo "Restart your terminal or run 'zsh' to start using it."
+            fi
+        else
+            warn "Failed to change shell. You can do it manually with: chsh -s $zsh_path"
+        fi
+    else
+        info "Keeping $current_shell as default. Run 'zsh' to use the new config."
+    fi
+}
+
 # Print mode-specific post-install instructions
 print_instructions() {
     echo ""
@@ -730,6 +782,9 @@ main() {
     link_gitmux
 
     install_tmux_plugins || warn "tmux plugins installation failed (run 'prefix + I' manually)"
+
+    # Offer to change default shell
+    prompt_change_shell
 
     print_instructions
 }
