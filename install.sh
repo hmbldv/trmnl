@@ -104,6 +104,85 @@ has_display() {
     return 1
 }
 
+# Prompt user to select terminal mode
+select_terminal_mode() {
+    TERMINAL_MODE="kitty"  # Default
+
+    echo ""
+    echo "================================"
+    echo "  Terminal Selection"
+    echo "================================"
+    echo ""
+
+    # Show environment warnings
+    if [[ "$IS_VM" == "true" ]]; then
+        warn "Virtual machine detected: $VM_TYPE"
+        echo "      Kitty requires OpenGL 3.3 which may not work in VMs."
+        echo ""
+    fi
+
+    if [[ "$IS_SSH" == "true" ]]; then
+        warn "SSH/remote session detected"
+        echo "      Kitty requires direct display access and won't work over SSH."
+        echo ""
+    fi
+
+    echo "Choose your terminal emulator:"
+    echo ""
+    echo "  1) Kitty (GPU-accelerated, feature-rich)"
+    echo "     - Requires OpenGL 3.3 and direct display access"
+    echo "     - Best for: Native installs on physical machines"
+    if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
+        echo "     ${YELLOW}⚠ May not work in your current environment${NC}"
+    fi
+    echo ""
+    echo "  2) Native Terminal (Terminal.app on macOS, system default on Linux)"
+    echo "     - Works everywhere including VMs and SSH"
+    echo "     - Best for: VMs, remote servers, compatibility"
+    if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
+        echo "     ${GREEN}✓ Recommended for your environment${NC}"
+    fi
+    echo ""
+
+    # Default recommendation based on environment
+    local default_choice="1"
+    if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
+        default_choice="2"
+    fi
+
+    while true; do
+        read -p "Select terminal [1/2] (default: $default_choice): " choice
+        choice="${choice:-$default_choice}"
+
+        case "$choice" in
+            1)
+                TERMINAL_MODE="kitty"
+                if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
+                    echo ""
+                    warn "You selected Kitty in a potentially incompatible environment."
+                    echo "      If Kitty fails to launch, you can re-run this installer"
+                    echo "      and select option 2 (Native Terminal) instead."
+                    echo ""
+                    read -p "Continue with Kitty? [y/N]: " confirm
+                    if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+                        continue
+                    fi
+                fi
+                info "Selected: Kitty terminal"
+                break
+                ;;
+            2)
+                TERMINAL_MODE="native"
+                info "Selected: Native terminal"
+                break
+                ;;
+            *)
+                echo "Invalid choice. Please enter 1 or 2."
+                ;;
+        esac
+    done
+}
+
 # Check for required dependencies
 check_dependencies() {
     local missing=()
