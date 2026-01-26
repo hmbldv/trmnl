@@ -60,9 +60,8 @@ ktty-trmnl-tmx/
 | Close tab | `Ctrl+Shift+W` |
 | Next/Prev tab | `Ctrl+Shift+Right/Left` |
 | Go to tab N | `Ctrl+Shift+[1-5]` |
-| Vertical split | `Ctrl+Shift+\` |
-| Horizontal split | `Ctrl+Shift+-` |
-| Navigate splits | `Ctrl+Shift+H/J/K/L` |
+| New window | `Ctrl+Shift+Enter` |
+| Navigate windows | `Ctrl+Shift+[/]` |
 | Zoom pane (stack) | `Ctrl+Shift+Z` |
 | Next layout | `Ctrl+Shift+.` |
 | Reload config | `Ctrl+Shift+F5` |
