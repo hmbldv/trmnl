@@ -48,12 +48,12 @@ format = "$symbol"
 style = "white"
 
 [os.symbols]
-Macos = "[\uf302 ](white)"
-Linux = "[🐧 ](white)"
-Ubuntu = "[\uf31b ](bold #E95420)"
-Debian = "[\uf306 ](bold #A81D33)"
-Fedora = "[\uf30a ](bold #51A2DA)"
-Arch = "[\uf303 ](bold #1793D1)"
+Macos = "[\uf302](white)"
+Linux = "[🐧](white)"
+Ubuntu = "[\uf31b](bold #E95420)"
+Debian = "[\uf306](bold #A81D33)"
+Fedora = "[\uf30a](bold #51A2DA)"
+Arch = "[\uf303](bold #1793D1)"
 
 # -----------------------------------------------------------------------------
 # SSH Indicator (shows when connected via SSH)
@@ -67,7 +67,7 @@ variable = "SSH_CONNECTION"
 # -----------------------------------------------------------------------------
 [hostname]
 ssh_only = false
-format = "[$hostname]($style) "
+format = "[ $hostname]($style) "
 style = "bold green"
 trim_at = "."
 
