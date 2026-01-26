@@ -9,7 +9,7 @@ command_timeout = 1000
 # Prompt Format
 # -----------------------------------------------------------------------------
 format = """
-$custom\
+$os\
 $directory\
 $git_branch\
 $git_status\
@@ -36,14 +36,20 @@ disabled = true
 disabled = true
 
 # -----------------------------------------------------------------------------
-# Custom Host Icon
-# Set STARSHIP_HOST_ICON in host-specific zsh config
+# OS Icon (auto-detected)
 # -----------------------------------------------------------------------------
-[custom.host]
-command = "echo $STARSHIP_HOST_ICON"
-when = "test -n \"$STARSHIP_HOST_ICON\""
-format = "[$output ]($style)"
+[os]
+disabled = false
+format = "[$symbol ]($style)"
 style = "white"
+
+[os.symbols]
+Macos = ""
+Linux = "🐧"
+Ubuntu = ""
+Debian = ""
+Fedora = ""
+Arch = ""
 
 # -----------------------------------------------------------------------------
 # Directory

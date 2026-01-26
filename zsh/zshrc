@@ -48,10 +48,7 @@ source "${0:A:h}/aliases.zsh" 2>/dev/null || true
 # -----------------------------------------------------------------------------
 case "$(uname -s)" in
     Darwin)
-        # macOS
-        export STARSHIP_HOST_ICON=""
-
-        # Homebrew plugin paths
+        # macOS - Homebrew plugin paths
         if [[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
             source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
         fi
@@ -63,10 +60,7 @@ case "$(uname -s)" in
         export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
         ;;
     Linux)
-        # Linux
-        export STARSHIP_HOST_ICON=""
-
-        # System plugin paths
+        # Linux - System plugin paths
         if [[ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
             source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
         elif [[ -f ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
