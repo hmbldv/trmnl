@@ -1,12 +1,14 @@
-# ktty-trmnl-tmx
+<h1 align="center">A Terminal Worth Stealing</h1>
 
-**Your terminal, everywhere.**
+<p align="center"><em>Your terminal, everywhere.</em></p>
 
-Stop reconfiguring your terminal on every new machine, VM, or SSH session. One clone, one script—your setup works the same on your Mac, your Linux server, and any machine you connect to.
+<p align="center">
+  <img src="./assets/after.png" alt="Terminal showing tmux with local and SSH sessions, status bar with git branch, OS icons, hostname, and system info" />
+</p>
 
 ---
 
-![Terminal showing tmux with local and SSH sessions, status bar with git branch, OS icons, hostname, and system info](./assets/after.png)
+Stop reconfiguring your terminal on every new machine, VM, or SSH session. One clone, one script—your setup works the same on your Mac, your Linux server, and any machine you connect to.
 
 ---
 
@@ -24,8 +26,8 @@ Each one feels different. Each one needs setup. Each one breaks your flow.
 ## The Solution
 
 ```bash
-git clone https://github.com/hmbldv/ktty-trmnl-tmx.git
-cd ktty-trmnl-tmx
+git clone https://github.com/hmbldv/trmnl.git
+cd trmnl
 ./install.sh
 ```
 
