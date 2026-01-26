@@ -165,7 +165,8 @@ install_starship() {
             brew install starship
             ;;
         *)
-            curl -sS https://starship.rs/install.sh | sh -s -- -y
+            mkdir -p "$HOME/.local/bin"
+            curl -sS https://starship.rs/install.sh | sh -s -- -y -b "$HOME/.local/bin"
             ;;
     esac
 }
