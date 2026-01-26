@@ -25,6 +25,85 @@ has_sudo() {
     sudo -n true 2>/dev/null
 }
 
+# Detect if running in a virtual machine
+detect_vm() {
+    IS_VM=false
+    VM_TYPE=""
+
+    case "$(uname -s)" in
+        Darwin)
+            # Check for Parallels
+            if system_profiler SPHardwareDataType 2>/dev/null | grep -qi "Parallels"; then
+                IS_VM=true
+                VM_TYPE="Parallels"
+            # Check for VMware
+            elif system_profiler SPHardwareDataType 2>/dev/null | grep -qi "VMware"; then
+                IS_VM=true
+                VM_TYPE="VMware"
+            # Check for VirtualBox
+            elif system_profiler SPHardwareDataType 2>/dev/null | grep -qi "VirtualBox"; then
+                IS_VM=true
+                VM_TYPE="VirtualBox"
+            # Check model identifier for common VM patterns
+            elif system_profiler SPHardwareDataType 2>/dev/null | grep -i "Model Identifier" | grep -qiE "(parallels|vmware|virtualbox)"; then
+                IS_VM=true
+                VM_TYPE="Unknown VM"
+            fi
+            ;;
+        Linux)
+            # Check systemd-detect-virt
+            if command -v systemd-detect-virt &>/dev/null; then
+                local virt_type
+                virt_type=$(systemd-detect-virt 2>/dev/null)
+                if [[ "$virt_type" != "none" && -n "$virt_type" ]]; then
+                    IS_VM=true
+                    VM_TYPE="$virt_type"
+                fi
+            # Fallback: check DMI
+            elif [[ -f /sys/class/dmi/id/product_name ]]; then
+                local product
+                product=$(cat /sys/class/dmi/id/product_name 2>/dev/null)
+                if echo "$product" | grep -qiE "(virtualbox|vmware|parallels|qemu|kvm|xen|hyper-v)"; then
+                    IS_VM=true
+                    VM_TYPE="$product"
+                fi
+            fi
+            ;;
+    esac
+}
+
+# Detect if running over SSH (headless/remote session)
+detect_ssh() {
+    IS_SSH=false
+
+    # Check for SSH environment variables
+    if [[ -n "$SSH_CLIENT" || -n "$SSH_TTY" || -n "$SSH_CONNECTION" ]]; then
+        IS_SSH=true
+    # Check if stdin is not a terminal (could indicate remote/automated)
+    elif [[ ! -t 0 ]]; then
+        IS_SSH=true
+    fi
+}
+
+# Check if display/GUI is available
+has_display() {
+    case "$(uname -s)" in
+        Darwin)
+            # On macOS, check if we can access the window server
+            if [[ -n "$DISPLAY" ]] || system_profiler SPDisplaysDataType &>/dev/null; then
+                return 0
+            fi
+            ;;
+        Linux)
+            # Check for display
+            if [[ -n "$DISPLAY" || -n "$WAYLAND_DISPLAY" ]]; then
+                return 0
+            fi
+            ;;
+    esac
+    return 1
+}
+
 # Check for required dependencies
 check_dependencies() {
     local missing=()
