@@ -1,17 +1,27 @@
 # ktty-trmnl-tmx
 
-Portable terminal configuration for Kitty + tmux + zsh. Drop-in setup for new machines across macOS and Linux.
+**Your terminal, everywhere.**
 
-## What's Included
+Stop reconfiguring your terminal on every new machine, VM, or SSH session. One clone, one script—your setup works the same on your Mac, your Linux server, and any machine you connect to.
 
-- **Kitty** - GPU-accelerated terminal emulator (optional)
-- **tmux** - Terminal multiplexer for session persistence
-- **zsh** - Shell configuration with plugins
-- **Starship** - Cross-shell prompt
-- **gitmux** - Git status in tmux status bar
-- **JetBrainsMono Nerd Font** - Coding font with ligatures and icons
+---
 
-## Quick Start
+![Terminal showing tmux with local and SSH sessions, status bar with git branch, OS icons, hostname, and system info](./assets/after.png)
+
+---
+
+## The Problem
+
+You're spending more time in the terminal than ever. Maybe Claude Code pulled you in. Now you're juggling:
+
+- Your Mac
+- A Linux server
+- A VM for testing
+- SSH sessions into who-knows-where
+
+Each one feels different. Each one needs setup. Each one breaks your flow.
+
+## The Solution
 
 ```bash
 git clone https://github.com/hmbldv/ktty-trmnl-tmx.git
@@ -19,216 +29,89 @@ cd ktty-trmnl-tmx
 ./install.sh
 ```
 
-The installer will:
-1. Detect your OS (macOS, Debian/Ubuntu, Fedora, Arch)
-2. Detect VM/SSH environments and recommend the appropriate terminal
-3. Prompt you to choose between **Kitty** or **Native Terminal** mode
-4. Install JetBrainsMono Nerd Font and selected components
-5. Symlink all configs to the correct locations
+Three minutes later: same terminal experience everywhere.
 
-## Terminal Mode Selection
+---
 
-The installer prompts you to choose a terminal mode:
+## What You Get
 
-### Option 1: Kitty (Default for physical machines)
+| Feature | Why It Matters |
+|---------|----------------|
+| **Always know where you are** | OS icon, hostname, git branch, directory—visible at a glance |
+| **Split panes, persistent sessions** | Disconnect from SSH, reconnect later, pick up where you left off |
+| **Same setup everywhere** | macOS, Linux, VMs, remote servers—identical muscle memory |
+| **Clean, consistent look** | Professional aesthetic that doesn't fight you |
 
-GPU-accelerated terminal with advanced features like image display, ligatures, and SSH integration.
+---
 
-**Best for:** Native installs on physical machines with direct display access.
+## Try This After Install
 
-### Option 2: Native Terminal (Default for VMs/SSH)
+1. Open a new terminal—notice the prompt shows your OS and current folder
+2. Navigate to a git repo—watch the branch appear in your prompt
+3. Press `Ctrl+A` then `|` to split the screen vertically
+4. Press `Ctrl+A` then `h` or `l` to move between panes
+5. Type `exit` in one pane to close it
 
-Uses your system's default terminal (Terminal.app on macOS, existing terminal on Linux).
+---
 
-**Best for:** Virtual machines, SSH sessions, remote servers, or when Kitty isn't needed.
+## What's Inside
 
-**Note:** When using Native Terminal mode on macOS, you'll need to manually set the font:
-1. Open Terminal → Settings → Profiles → [Your Profile] → Text
-2. Click "Change..." next to Font
-3. Select "JetBrainsMono Nerd Font Mono" at size 12
+| Tool | What It Does |
+|------|--------------|
+| **Kitty** | Fast terminal with tabs, splits, and image support (optional—works with your existing terminal too) |
+| **tmux** | Split your screen into panes. Sessions survive disconnects—close the window, come back tomorrow, everything's still there |
+| **zsh** | Modern shell with syntax highlighting and suggestions as you type |
+| **Starship** | Smart prompt that shows git status, current directory, and OS icon |
+| **gitmux** | Git branch and status in your tmux status bar |
 
-### Environment Detection
+---
 
-The installer automatically detects:
-- **Virtual machines** - Parallels, VMware, VirtualBox, QEMU, KVM, Xen, Hyper-V
-- **SSH sessions** - Remote connections without direct display access
+## Who This Is For
 
-When detected, the installer recommends Native Terminal since Kitty requires OpenGL 3.3 and direct display access.
+- Developers spending more time in CLI tools (Claude Code, Cursor, etc.)
+- Anyone working across multiple machines or environments
+- People who want a better terminal but don't want to become a "dotfiles person"
 
-## Structure
+---
 
-```
-ktty-trmnl-tmx/
-├── install.sh              # Bootstrap script
-├── kitty/
-│   ├── kitty.conf          # Main Kitty config
-│   └── themes/
-│       ├── catppuccin-spacedust.conf  # Default theme
-│       ├── spacedust.conf
-│       └── earthsong.conf
-├── tmux/
-│   └── tmux.conf           # tmux config
-├── gitmux/
-│   └── gitmux.conf         # Git status for tmux
-└── zsh/
-    ├── zshrc               # Main zsh config
-    ├── aliases.zsh         # Shared aliases
-    └── starship.toml       # Starship prompt config
-```
+## Why This Exists
 
-## Config Locations (After Install)
+I work across a Mac, a Linux server, and VMs. Every new machine was 30-45 minutes of setup before I could focus on actual work. My muscle memory would fight three different configurations.
 
-| Config | Location |
-|--------|----------|
-| Kitty | `~/.config/kitty/kitty.conf` |
-| tmux | `~/.tmux.conf` |
-| zsh | `~/.zshrc` |
-| Starship | `~/.config/starship.toml` |
-| gitmux | `~/.gitmux.conf` |
-| Fonts | System font directory |
+This repo is my fix. One config that follows me everywhere.
 
-## Kitty Shortcuts
+---
 
-> These are Kitty's default keybindings. The kitty.conf in this repo sets shell, font, theme, and transparency.
+## Quick Reference
 
-| Action | Shortcut |
-|--------|----------|
-| New tab | `Ctrl+Shift+T` |
-| Close tab | `Ctrl+Shift+W` |
-| Next/Prev tab | `Ctrl+Shift+Right/Left` |
-| Go to tab N | `Ctrl+Shift+[1-5]` |
-| New window | `Ctrl+Shift+Enter` |
-| Navigate windows | `Ctrl+Shift+[/]` |
-| Zoom pane (stack) | `Ctrl+Shift+Z` |
-| Next layout | `Ctrl+Shift+.` |
-| Reload config | `Ctrl+Shift+F5` |
-| Increase font | `Ctrl+Shift+=` |
-| Decrease font | `Ctrl+Shift+-` |
-| Clear terminal | `Cmd+K` (macOS) |
+| Action | Keys |
+|--------|------|
+| Split vertical | `Ctrl+A` then `\|` |
+| Split horizontal | `Ctrl+A` then `-` |
+| Move between panes | `Ctrl+A` then `h/j/k/l` |
+| Detach (session keeps running) | `Ctrl+A` then `d` |
+| Reattach to session | `tmux attach` |
 
-## tmux Shortcuts
+[Full installation guide and shortcuts →](./INSTALLATION.md)
 
-| Action | Shortcut |
-|--------|----------|
-| Prefix | `Ctrl+A` |
-| Vertical split | `Prefix + \|` |
-| Horizontal split | `Prefix + -` |
-| Navigate panes | `Prefix + h/j/k/l` |
-| Resize panes | `Prefix + H/J/K/L` |
-| New window | `Prefix + c` |
-| Next/Prev window | `Prefix + n/p` |
-| Reload config | `Prefix + r` |
-
-## Kitty Kittens (Built-in Tools)
-
-```bash
-# SSH with full Kitty features on remote
-kitty +kitten ssh hostname
-
-# Display images in terminal
-kitty +kitten icat image.png
-
-# Side-by-side diff
-kitty +kitten diff file1 file2
-
-# Unicode character picker
-kitty +kitten unicode_input
-```
-
-## Shell Aliases
-
-```bash
-# Navigation
-..          # cd ..
-...         # cd ../..
-
-# Kitty
-s           # kitty +kitten ssh
-icat        # kitty +kitten icat
-kdiff       # kitty +kitten diff
-
-# Git
-gs          # git status
-ga          # git add
-gc          # git commit
-gp          # git push
-gl          # git pull
-glog        # git log --oneline --graph
-
-# Misc
-reload      # source ~/.zshrc
-path        # echo $PATH (one per line)
-```
-
-## Platform Detection
-
-The zsh config automatically detects your OS and:
-- Sources plugins from the correct paths (Homebrew on Mac, system paths on Linux)
-- Starship shows the appropriate OS icon ( for macOS, 🐧 for generic Linux, distro icons for Ubuntu/Debian/Fedora/Arch)
-
-## Adding a New Theme
-
-1. Add theme file to `kitty/themes/`
-2. Update the colors in `kitty.conf` or use include:
-   ```conf
-   include themes/your-theme.conf
-   ```
-3. Reload: `Ctrl+Shift+F5`
-
-Or use the built-in theme kitten:
-```bash
-kitty +kitten themes
-```
+---
 
 ## Supported Platforms
 
-| Platform | Package Manager | Status |
-|----------|-----------------|--------|
-| macOS | Homebrew | ✓ |
-| Ubuntu/Debian | apt | ✓ |
-| Fedora | dnf | ✓ |
-| Arch | pacman | ✓ |
-| Windows | - | Not supported (use WSL) |
+| Platform | Status |
+|----------|--------|
+| macOS (Homebrew) | Supported |
+| Ubuntu / Debian | Supported |
+| Fedora | Supported |
+| Arch | Supported |
+| Windows | Use WSL |
 
-## Requirements
-
-- **sudo access** (Linux only) - Required to install zsh and zsh plugins via package manager. If sudo is unavailable, install zsh manually before running the installer.
-- **Nerd Font** - JetBrainsMono Nerd Font is installed automatically. OS icons in the prompt require Nerd Font glyphs.
-
-## Manual Installation
-
-If you prefer not to run the install script:
-
-```bash
-# macOS
-brew install --cask kitty font-jetbrains-mono-nerd-font
-brew install tmux starship zsh-syntax-highlighting zsh-autosuggestions
-
-# Debian/Ubuntu
-sudo apt install kitty tmux zsh zsh-syntax-highlighting zsh-autosuggestions
-curl -sS https://starship.rs/install.sh | sh
-# Font: download from https://github.com/ryanoasis/nerd-fonts/releases
-
-# Symlink configs
-ln -sf $(pwd)/kitty/kitty.conf ~/.config/kitty/kitty.conf
-ln -sf $(pwd)/kitty/themes ~/.config/kitty/themes
-ln -sf $(pwd)/tmux/tmux.conf ~/.tmux.conf
-ln -sf $(pwd)/zsh/zshrc ~/.zshrc
-ln -sf $(pwd)/zsh/starship.toml ~/.config/starship.toml
-ln -sf $(pwd)/gitmux/gitmux.conf ~/.gitmux.conf
-```
-
-## Updating
-
-```bash
-cd ktty-trmnl-tmx
-git pull
-# Configs are symlinked, changes apply immediately
-# Reload Kitty: Ctrl+Shift+F5
-# Reload zsh: source ~/.zshrc
-# Reload tmux: Prefix + r
-```
+---
 
 ## License
 
 MIT
+
+---
+
+*Built for developers who'd rather code than configure.*
