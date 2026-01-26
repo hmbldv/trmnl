@@ -390,6 +390,14 @@ link_kitty() {
     fi
 
     ln -sf "$REPO_DIR/kitty/kitty.conf" "$KITTY_CONFIG/kitty.conf"
+
+    # Remove existing themes symlink/dir to prevent recursion
+    if [ -L "$KITTY_CONFIG/themes" ]; then
+        rm "$KITTY_CONFIG/themes"
+    elif [ -d "$KITTY_CONFIG/themes" ]; then
+        warn "Backing up existing themes directory to themes.bak"
+        mv "$KITTY_CONFIG/themes" "$KITTY_CONFIG/themes.bak"
+    fi
     ln -sf "$REPO_DIR/kitty/themes" "$KITTY_CONFIG/themes"
 
     # Copy app icon (symlink doesn't work for icons)
