@@ -54,7 +54,8 @@ detect_vm() {
             # Check systemd-detect-virt
             if command -v systemd-detect-virt &>/dev/null; then
                 local virt_type
-                virt_type=$(systemd-detect-virt 2>/dev/null)
+                # Note: systemd-detect-virt returns exit code 1 when not virtualized
+                virt_type=$(systemd-detect-virt 2>/dev/null || echo "none")
                 if [[ "$virt_type" != "none" && -n "$virt_type" ]]; then
                     IS_VM=true
                     VM_TYPE="$virt_type"
