@@ -67,7 +67,7 @@ variable = "SSH_CONNECTION"
 # -----------------------------------------------------------------------------
 [hostname]
 ssh_only = false
-format = "[ $hostname]($style) "
+format = " [$hostname]($style) "
 style = "bold green"
 trim_at = "."
 
