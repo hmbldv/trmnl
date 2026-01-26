@@ -8,6 +8,7 @@ Portable terminal configuration for Kitty + tmux + zsh. Drop-in setup for new ma
 - **tmux** - Terminal multiplexer for session persistence
 - **zsh** - Shell configuration with plugins
 - **Starship** - Cross-shell prompt
+- **gitmux** - Git status in tmux status bar
 - **JetBrainsMono Nerd Font** - Coding font with ligatures and icons
 
 ## Quick Start
@@ -21,7 +22,7 @@ cd ktty-trmnl-tmx
 The installer will:
 1. Detect your OS (macOS, Debian/Ubuntu, Fedora, Arch)
 2. Install JetBrainsMono Nerd Font
-3. Install Kitty, tmux, Starship, and zsh plugins
+3. Install Kitty, tmux, zsh, Starship, gitmux, and zsh plugins
 4. Symlink all configs to the correct locations
 
 ## Structure
@@ -32,10 +33,13 @@ ktty-trmnl-tmx/
 ├── kitty/
 │   ├── kitty.conf          # Main Kitty config
 │   └── themes/
-│       ├── spacedust.conf  # Active theme
+│       ├── catppuccin-spacedust.conf  # Default theme
+│       ├── spacedust.conf
 │       └── earthsong.conf
 ├── tmux/
 │   └── tmux.conf           # tmux config
+├── gitmux/
+│   └── gitmux.conf         # Git status for tmux
 └── zsh/
     ├── zshrc               # Main zsh config
     ├── aliases.zsh         # Shared aliases
@@ -50,11 +54,12 @@ ktty-trmnl-tmx/
 | tmux | `~/.tmux.conf` |
 | zsh | `~/.zshrc` |
 | Starship | `~/.config/starship.toml` |
+| gitmux | `~/.gitmux.conf` |
 | Fonts | System font directory |
 
 ## Kitty Shortcuts
 
-> These are Kitty's default keybindings. The kitty.conf in this repo sets font and colors only.
+> These are Kitty's default keybindings. The kitty.conf in this repo sets shell, font, theme, and transparency.
 
 | Action | Shortcut |
 |--------|----------|
@@ -175,6 +180,7 @@ ln -sf $(pwd)/kitty/themes ~/.config/kitty/themes
 ln -sf $(pwd)/tmux/tmux.conf ~/.tmux.conf
 ln -sf $(pwd)/zsh/zshrc ~/.zshrc
 ln -sf $(pwd)/zsh/starship.toml ~/.config/starship.toml
+ln -sf $(pwd)/gitmux/gitmux.conf ~/.gitmux.conf
 ```
 
 ## Updating
