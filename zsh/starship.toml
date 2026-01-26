@@ -48,12 +48,12 @@ format = "$symbol"
 style = "white"
 
 [os.symbols]
-Macos = "[\uf302](white)[ ·](#888888)"
-Linux = "[🐧](white)[ ·](#888888)"
-Ubuntu = "[\uf31b](bold #E95420)[ ·](#a34517)"
-Debian = "[\uf306](bold #A81D33)[ ·](#6e1322)"
-Fedora = "[\uf30a](bold #51A2DA)[ ·](#3a7199)"
-Arch = "[\uf303](bold #1793D1)[ ·](#10628c)"
+Macos = "[\uf302](white)[ ⊳](#888888)"
+Linux = "[🐧](white)[ ⊳](#888888)"
+Ubuntu = "[\uf31b](bold #E95420)[ ⊳](#a34517)"
+Debian = "[\uf306](bold #A81D33)[ ⊳](#6e1322)"
+Fedora = "[\uf30a](bold #51A2DA)[ ⊳](#3a7199)"
+Arch = "[\uf303](bold #1793D1)[ ⊳](#10628c)"
 
 # -----------------------------------------------------------------------------
 # SSH Indicator (shows when connected via SSH)
