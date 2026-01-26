@@ -215,6 +215,36 @@ install_starship() {
     esac
 }
 
+# Install zsh
+install_zsh() {
+    info "Checking for zsh..."
+
+    if command -v zsh &>/dev/null; then
+        info "zsh already installed: $(zsh --version)"
+        return
+    fi
+
+    info "Installing zsh..."
+
+    case "$OS" in
+        macos)
+            # zsh is default on macOS
+            ;;
+        debian)
+            sudo apt update && sudo apt install -y zsh
+            ;;
+        arch)
+            sudo pacman -S --noconfirm zsh
+            ;;
+        fedora)
+            sudo dnf install -y zsh
+            ;;
+        *)
+            warn "Could not auto-install zsh. Install manually."
+            ;;
+    esac
+}
+
 # Install zsh plugins
 install_zsh_plugins() {
     info "Checking for zsh plugins..."
@@ -404,6 +434,7 @@ main() {
     install_tpm || warn "TPM installation failed (continuing)"
     install_gitmux || warn "gitmux installation failed (continuing)"
     install_starship || warn "Starship installation failed (continuing)"
+    install_zsh || warn "zsh installation failed (continuing)"
     install_zsh_plugins || warn "zsh plugins installation failed (continuing)"
 
     # Symlinks - these are the critical part
