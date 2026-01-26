@@ -4,7 +4,7 @@ Portable terminal configuration for Kitty + tmux + zsh. Drop-in setup for new ma
 
 ## What's Included
 
-- **Kitty** - GPU-accelerated terminal emulator
+- **Kitty** - GPU-accelerated terminal emulator (optional)
 - **tmux** - Terminal multiplexer for session persistence
 - **zsh** - Shell configuration with plugins
 - **Starship** - Cross-shell prompt
@@ -21,9 +21,39 @@ cd ktty-trmnl-tmx
 
 The installer will:
 1. Detect your OS (macOS, Debian/Ubuntu, Fedora, Arch)
-2. Install JetBrainsMono Nerd Font
-3. Install Kitty, tmux, zsh, Starship, gitmux, and zsh plugins
-4. Symlink all configs to the correct locations
+2. Detect VM/SSH environments and recommend the appropriate terminal
+3. Prompt you to choose between **Kitty** or **Native Terminal** mode
+4. Install JetBrainsMono Nerd Font and selected components
+5. Symlink all configs to the correct locations
+
+## Terminal Mode Selection
+
+The installer prompts you to choose a terminal mode:
+
+### Option 1: Kitty (Default for physical machines)
+
+GPU-accelerated terminal with advanced features like image display, ligatures, and SSH integration.
+
+**Best for:** Native installs on physical machines with direct display access.
+
+### Option 2: Native Terminal (Default for VMs/SSH)
+
+Uses your system's default terminal (Terminal.app on macOS, existing terminal on Linux).
+
+**Best for:** Virtual machines, SSH sessions, remote servers, or when Kitty isn't needed.
+
+**Note:** When using Native Terminal mode on macOS, you'll need to manually set the font:
+1. Open Terminal → Settings → Profiles → [Your Profile] → Text
+2. Click "Change..." next to Font
+3. Select "JetBrainsMono Nerd Font Mono" at size 12
+
+### Environment Detection
+
+The installer automatically detects:
+- **Virtual machines** - Parallels, VMware, VirtualBox, QEMU, KVM, Xen, Hyper-V
+- **SSH sessions** - Remote connections without direct display access
+
+When detected, the installer recommends Native Terminal since Kitty requires OpenGL 3.3 and direct display access.
 
 ## Structure
 
