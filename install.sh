@@ -242,7 +242,17 @@ install_gitmux() {
         *)
             # Download binary for Linux
             GITMUX_VERSION="v0.11.5"
-            GITMUX_URL="https://github.com/arl/gitmux/releases/download/${GITMUX_VERSION}/gitmux_${GITMUX_VERSION}_linux_amd64.tar.gz"
+            ARCH=$(uname -m)
+            case "$ARCH" in
+                x86_64)  GITMUX_ARCH="amd64" ;;
+                aarch64) GITMUX_ARCH="arm64" ;;
+                armv7l)  GITMUX_ARCH="armv6" ;;
+                *)
+                    warn "Unsupported architecture for gitmux: $ARCH"
+                    return
+                    ;;
+            esac
+            GITMUX_URL="https://github.com/arl/gitmux/releases/download/${GITMUX_VERSION}/gitmux_${GITMUX_VERSION}_linux_${GITMUX_ARCH}.tar.gz"
             TEMP_DIR=$(mktemp -d)
             curl -fsSL "$GITMUX_URL" -o "$TEMP_DIR/gitmux.tar.gz"
             tar -xzf "$TEMP_DIR/gitmux.tar.gz" -C "$TEMP_DIR"
