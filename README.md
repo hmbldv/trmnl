@@ -160,6 +160,11 @@ kitty +kitten themes
 | Arch | pacman | ✓ |
 | Windows | - | Not supported (use WSL) |
 
+## Requirements
+
+- **sudo access** (Linux only) - Required to install zsh and zsh plugins via package manager. If sudo is unavailable, install zsh manually before running the installer.
+- **Nerd Font** - JetBrainsMono Nerd Font is installed automatically. OS icons in the prompt require Nerd Font glyphs.
+
 ## Manual Installation
 
 If you prefer not to run the install script:
