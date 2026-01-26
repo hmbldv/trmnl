@@ -95,6 +95,48 @@ install_font() {
     esac
 }
 
+# Integrate Kitty with Linux desktop environment
+integrate_kitty_desktop() {
+    info "Setting up Kitty desktop integration..."
+
+    KITTY_APP="$HOME/.local/kitty.app"
+    DESKTOP_DIR="$HOME/.local/share/applications"
+    ICON_DIR="$HOME/.local/share/icons/hicolor/256x256/apps"
+
+    # Create directories
+    mkdir -p "$DESKTOP_DIR"
+    mkdir -p "$ICON_DIR"
+
+    # Copy and update kitty.desktop
+    if [ -f "$KITTY_APP/share/applications/kitty.desktop" ]; then
+        cp "$KITTY_APP/share/applications/kitty.desktop" "$DESKTOP_DIR/"
+        sed -i "s|^Icon=.*|Icon=$KITTY_APP/share/icons/hicolor/256x256/apps/kitty.png|g" "$DESKTOP_DIR/kitty.desktop"
+        sed -i "s|^Exec=.*|Exec=$KITTY_APP/bin/kitty|g" "$DESKTOP_DIR/kitty.desktop"
+        info "kitty.desktop installed"
+    fi
+
+    # Copy and update kitty-open.desktop (file manager integration)
+    if [ -f "$KITTY_APP/share/applications/kitty-open.desktop" ]; then
+        cp "$KITTY_APP/share/applications/kitty-open.desktop" "$DESKTOP_DIR/"
+        sed -i "s|^Icon=.*|Icon=$KITTY_APP/share/icons/hicolor/256x256/apps/kitty.png|g" "$DESKTOP_DIR/kitty-open.desktop"
+        sed -i "s|^Exec=.*|Exec=$KITTY_APP/bin/kitty|g" "$DESKTOP_DIR/kitty-open.desktop"
+        info "kitty-open.desktop installed"
+    fi
+
+    # Copy icon
+    if [ -f "$KITTY_APP/share/icons/hicolor/256x256/apps/kitty.png" ]; then
+        cp "$KITTY_APP/share/icons/hicolor/256x256/apps/kitty.png" "$ICON_DIR/"
+        info "Kitty icon installed"
+    fi
+
+    # Update desktop database if available
+    if command -v update-desktop-database &>/dev/null; then
+        update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
+    fi
+
+    info "Kitty desktop integration complete"
+}
+
 # Install Kitty
 install_kitty() {
     info "Checking for Kitty..."
@@ -115,6 +157,8 @@ install_kitty() {
             mkdir -p "$HOME/.local/bin"
             ln -sf "$HOME/.local/kitty.app/bin/kitty" "$HOME/.local/bin/"
             ln -sf "$HOME/.local/kitty.app/bin/kitten" "$HOME/.local/bin/"
+            # Desktop integration
+            integrate_kitty_desktop
             ;;
         arch)
             sudo pacman -S --noconfirm kitty
