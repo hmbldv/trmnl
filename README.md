@@ -76,10 +76,11 @@ ktty-trmnl-tmx/
 | Prefix | `Ctrl+A` |
 | Vertical split | `Prefix + \|` |
 | Horizontal split | `Prefix + -` |
-| Navigate panes | `Prefix + H/J/K/L` |
-| New window | `Prefix + C` |
-| Next/Prev window | `Prefix + N/P` |
-| Reload config | `Prefix + R` |
+| Navigate panes | `Prefix + h/j/k/l` |
+| Resize panes | `Prefix + H/J/K/L` |
+| New window | `Prefix + c` |
+| Next/Prev window | `Prefix + n/p` |
+| Reload config | `Prefix + r` |
 
 ## Kitty Kittens (Built-in Tools)
 
