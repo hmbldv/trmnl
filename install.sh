@@ -418,6 +418,20 @@ link_starship() {
     info "Starship config linked"
 }
 
+# Symlink gitmux config
+link_gitmux() {
+    info "Linking gitmux config..."
+
+    if [ -f "$HOME/.gitmux.conf" ] && [ ! -L "$HOME/.gitmux.conf" ]; then
+        warn "Backing up existing .gitmux.conf to .gitmux.conf.bak"
+        mv "$HOME/.gitmux.conf" "$HOME/.gitmux.conf.bak"
+    fi
+
+    ln -sf "$REPO_DIR/gitmux/gitmux.conf" "$HOME/.gitmux.conf"
+
+    info "gitmux config linked"
+}
+
 # Main
 main() {
     echo "================================"
@@ -442,6 +456,7 @@ main() {
     link_tmux
     link_zsh
     link_starship
+    link_gitmux
 
     install_tmux_plugins || warn "tmux plugins installation failed (run 'prefix + I' manually)"
 
