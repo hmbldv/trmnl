@@ -10,9 +10,13 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 
 # -----------------------------------------------------------------------------
-# Listing
+# Listing (cross-platform color support)
 # -----------------------------------------------------------------------------
-alias ls='ls --color=auto 2>/dev/null || ls -G'  # Linux || macOS
+if [[ "$(uname)" == "Darwin" ]]; then
+    alias ls='ls -G'
+else
+    alias ls='ls --color=auto'
+fi
 alias ll='ls -lah'
 alias la='ls -A'
 alias l='ls -CF'
