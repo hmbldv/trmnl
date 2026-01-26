@@ -639,6 +639,50 @@ link_gitmux() {
     info "gitmux config linked"
 }
 
+# Print mode-specific post-install instructions
+print_instructions() {
+    echo ""
+    info "Installation complete!"
+    echo ""
+
+    if [[ "$TERMINAL_MODE" == "kitty" ]]; then
+        echo "Next steps:"
+        echo "  1. Restart your terminal (or run: source ~/.zshrc)"
+        echo "  2. Reload Kitty config: Ctrl+Shift+F5"
+        echo "  3. Start tmux and press 'Ctrl+A I' to install plugins (if needed)"
+        echo ""
+        echo "Quick tips:"
+        echo "  - SSH with Kitty features: kitty +kitten ssh hostname"
+        echo "  - View images: kitty +kitten icat image.png"
+        echo "  - Reload zsh: source ~/.zshrc"
+        echo "  - Reload tmux: Ctrl+A r"
+    else
+        echo "Next steps:"
+        echo "  1. Restart your terminal (or run: source ~/.zshrc)"
+        echo "  2. Start tmux and press 'Ctrl+A I' to install plugins (if needed)"
+        echo ""
+
+        if [[ "$OS" == "macos" ]]; then
+            echo "  ${YELLOW}Font configuration (required for icons):${NC}"
+            echo "  3. Open Terminal.app → Settings → Profiles → [Your Profile] → Text"
+            echo "  4. Click 'Change...' next to Font and select 'JetBrainsMono Nerd Font'"
+            echo "  5. Recommended size: 12pt"
+            echo ""
+            echo "  Alternatively, import the provided Terminal profile:"
+            echo "    open \"$REPO_DIR/terminal/ktty-trmnl-tmx.terminal\""
+            echo "  Then set it as default in Terminal → Settings → General"
+        else
+            echo "  ${YELLOW}Font configuration:${NC}"
+            echo "  Ensure your terminal emulator uses 'JetBrainsMono Nerd Font'"
+            echo "  for proper icon rendering in the prompt and tmux status bar."
+        fi
+        echo ""
+        echo "Quick tips:"
+        echo "  - Reload zsh: source ~/.zshrc"
+        echo "  - Reload tmux: Ctrl+A r"
+    fi
+}
+
 # Main
 main() {
     echo "================================"
@@ -649,9 +693,29 @@ main() {
     check_dependencies
     detect_os
 
+    # Detect environment for terminal selection
+    detect_vm
+    detect_ssh
+
+    # Let user choose terminal mode
+    select_terminal_mode
+
+    echo ""
+    echo "================================"
+    echo "  Installing components"
+    echo "================================"
+    echo ""
+
     # Core tools - warn but continue if any fail
     install_font || warn "Font installation failed (continuing)"
-    install_kitty || warn "Kitty installation failed (continuing)"
+
+    # Only install Kitty if user selected it
+    if [[ "$TERMINAL_MODE" == "kitty" ]]; then
+        install_kitty || warn "Kitty installation failed (continuing)"
+    else
+        info "Skipping Kitty installation (Native Terminal mode)"
+    fi
+
     install_tmux || warn "tmux installation failed (continuing)"
     install_tpm || warn "TPM installation failed (continuing)"
     install_gitmux || warn "gitmux installation failed (continuing)"
@@ -660,7 +724,9 @@ main() {
     install_zsh_plugins || warn "zsh plugins installation failed (continuing)"
 
     # Symlinks - these are the critical part
-    link_kitty
+    if [[ "$TERMINAL_MODE" == "kitty" ]]; then
+        link_kitty
+    fi
     link_tmux
     link_zsh
     link_starship
@@ -668,19 +734,7 @@ main() {
 
     install_tmux_plugins || warn "tmux plugins installation failed (run 'prefix + I' manually)"
 
-    echo ""
-    info "Installation complete!"
-    echo ""
-    echo "Next steps:"
-    echo "  1. Restart your terminal (or run: source ~/.zshrc)"
-    echo "  2. Reload Kitty config: Ctrl+Shift+F5"
-    echo "  3. Start tmux and press 'Ctrl+A I' to install plugins (if needed)"
-    echo ""
-    echo "Quick tips:"
-    echo "  - SSH with Kitty features: kitty +kitten ssh hostname"
-    echo "  - View images: kitty +kitten icat image.png"
-    echo "  - Reload zsh: source ~/.zshrc"
-    echo "  - Reload tmux: Ctrl+A r"
+    print_instructions
 }
 
 main "$@"
