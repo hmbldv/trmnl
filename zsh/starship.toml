@@ -38,27 +38,28 @@ disabled = true
 disabled = true
 
 # -----------------------------------------------------------------------------
-# OS Icon (auto-detected)
+# OS Icon (auto-detected, brand colors)
 # Nerd Font codepoints: Ubuntu=F31B, Debian=F306, Fedora=F30A, Arch=F303, Apple=F302
+# Note: Colors embedded in symbols since os module has single style
 # -----------------------------------------------------------------------------
 [os]
 disabled = false
-format = "[ $symbol ]($style)"
+format = "$symbol"
 style = "white"
 
 [os.symbols]
-Macos = "\uf302"
-Linux = "🐧"
-Ubuntu = "\uf31b"
-Debian = "\uf306"
-Fedora = "\uf30a"
-Arch = "\uf303"
+Macos = "[ \uf302 ](white)"
+Linux = "[ 🐧 ](white)"
+Ubuntu = "[ \uf31b ](bold #E95420)"
+Debian = "[ \uf306 ](bold #A81D33)"
+Fedora = "[ \uf30a ](bold #51A2DA)"
+Arch = "[ \uf303 ](bold #1793D1)"
 
 # -----------------------------------------------------------------------------
 # SSH Indicator (shows when connected via SSH)
 # -----------------------------------------------------------------------------
 [env_var.SSH_CONNECTION]
-format = "[SSH ](bold yellow)"
+format = "[SSH](bold yellow) "
 variable = "SSH_CONNECTION"
 
 # -----------------------------------------------------------------------------
