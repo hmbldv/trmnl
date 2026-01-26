@@ -13,7 +13,7 @@ Portable terminal configuration for Kitty + tmux + zsh. Drop-in setup for new ma
 ## Quick Start
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ktty-trmnl-tmx.git
+git clone https://github.com/hmbldv/ktty-trmnl-tmx.git
 cd ktty-trmnl-tmx
 ./install.sh
 ```
