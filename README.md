@@ -165,7 +165,7 @@ brew install --cask kitty font-jetbrains-mono-nerd-font
 brew install tmux starship zsh-syntax-highlighting zsh-autosuggestions
 
 # Debian/Ubuntu
-sudo apt install kitty tmux zsh-syntax-highlighting zsh-autosuggestions
+sudo apt install kitty tmux zsh zsh-syntax-highlighting zsh-autosuggestions
 curl -sS https://starship.rs/install.sh | sh
 # Font: download from https://github.com/ryanoasis/nerd-fonts/releases
 
@@ -185,7 +185,7 @@ git pull
 # Configs are symlinked, changes apply immediately
 # Reload Kitty: Ctrl+Shift+F5
 # Reload zsh: source ~/.zshrc
-# Reload tmux: Prefix + R
+# Reload tmux: Prefix + r
 ```
 
 ## License
