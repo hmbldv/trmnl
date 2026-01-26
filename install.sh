@@ -664,13 +664,9 @@ print_instructions() {
 
         if [[ "$OS" == "macos" ]]; then
             echo "  ${YELLOW}Font configuration (required for icons):${NC}"
-            echo "  3. Open Terminal.app → Settings → Profiles → [Your Profile] → Text"
-            echo "  4. Click 'Change...' next to Font and select 'JetBrainsMono Nerd Font'"
-            echo "  5. Recommended size: 12pt"
-            echo ""
-            echo "  Alternatively, import the provided Terminal profile:"
-            echo "    open \"$REPO_DIR/terminal/ktty-trmnl-tmx.terminal\""
-            echo "  Then set it as default in Terminal → Settings → General"
+            echo "  3. Open Terminal → Settings → Profiles → [Your Profile] → Text"
+            echo "  4. Click 'Change...' next to Font"
+            echo "  5. Select 'JetBrainsMono Nerd Font Mono' at size 12"
         else
             echo "  ${YELLOW}Font configuration:${NC}"
             echo "  Ensure your terminal emulator uses 'JetBrainsMono Nerd Font'"
