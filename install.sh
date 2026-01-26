@@ -25,6 +25,20 @@ has_sudo() {
     sudo -n true 2>/dev/null
 }
 
+# Check for required dependencies
+check_dependencies() {
+    local missing=()
+    for dep in curl git unzip; do
+        if ! command -v "$dep" &>/dev/null; then
+            missing+=("$dep")
+        fi
+    done
+
+    if [ ${#missing[@]} -ne 0 ]; then
+        error "Missing required dependencies: ${missing[*]}"
+    fi
+}
+
 # Detect OS
 detect_os() {
     case "$(uname -s)" in
@@ -474,6 +488,7 @@ main() {
     echo "================================"
     echo ""
 
+    check_dependencies
     detect_os
 
     # Core tools - warn but continue if any fail
