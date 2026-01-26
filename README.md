@@ -127,7 +127,7 @@ path        # echo $PATH (one per line)
 
 The zsh config automatically detects your OS and:
 - Sources plugins from the correct paths (Homebrew on Mac, system paths on Linux)
-- Sets the appropriate Starship host icon ( for macOS,  for Linux)
+- Sets the appropriate Starship host icon ( for macOS, 🐧 for Linux)
 
 ## Adding a New Theme
 
