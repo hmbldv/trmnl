@@ -20,6 +20,11 @@ info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
 
+# Check if we have non-interactive sudo access
+has_sudo() {
+    sudo -n true 2>/dev/null
+}
+
 # Detect OS
 detect_os() {
     case "$(uname -s)" in
@@ -257,8 +262,19 @@ install_zsh_plugins() {
             fi
             ;;
         debian)
-            sudo apt update && sudo apt install -y zsh-syntax-highlighting zsh-autosuggestions 2>/dev/null || {
-                info "Installing zsh plugins manually..."
+            if has_sudo; then
+                sudo apt update && sudo apt install -y zsh-syntax-highlighting zsh-autosuggestions 2>/dev/null || {
+                    info "Package install failed, installing manually..."
+                    mkdir -p ~/.zsh
+                    if [[ ! -d ~/.zsh/zsh-syntax-highlighting ]]; then
+                        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
+                    fi
+                    if [[ ! -d ~/.zsh/zsh-autosuggestions ]]; then
+                        git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.zsh/zsh-autosuggestions
+                    fi
+                }
+            else
+                info "No sudo access, installing zsh plugins to ~/.zsh..."
                 mkdir -p ~/.zsh
                 if [[ ! -d ~/.zsh/zsh-syntax-highlighting ]]; then
                     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
@@ -266,14 +282,25 @@ install_zsh_plugins() {
                 if [[ ! -d ~/.zsh/zsh-autosuggestions ]]; then
                     git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.zsh/zsh-autosuggestions
                 fi
-            }
+            fi
             ;;
         arch)
             sudo pacman -S --noconfirm zsh-syntax-highlighting zsh-autosuggestions
             ;;
         fedora)
-            sudo dnf install -y zsh-syntax-highlighting zsh-autosuggestions 2>/dev/null || {
-                info "Installing zsh plugins manually..."
+            if has_sudo; then
+                sudo dnf install -y zsh-syntax-highlighting zsh-autosuggestions 2>/dev/null || {
+                    info "Package install failed, installing manually..."
+                    mkdir -p ~/.zsh
+                    if [[ ! -d ~/.zsh/zsh-syntax-highlighting ]]; then
+                        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
+                    fi
+                    if [[ ! -d ~/.zsh/zsh-autosuggestions ]]; then
+                        git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.zsh/zsh-autosuggestions
+                    fi
+                }
+            else
+                info "No sudo access, installing zsh plugins to ~/.zsh..."
                 mkdir -p ~/.zsh
                 if [[ ! -d ~/.zsh/zsh-syntax-highlighting ]]; then
                     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
@@ -281,7 +308,7 @@ install_zsh_plugins() {
                 if [[ ! -d ~/.zsh/zsh-autosuggestions ]]; then
                     git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.zsh/zsh-autosuggestions
                 fi
-            }
+            fi
             ;;
     esac
 }
