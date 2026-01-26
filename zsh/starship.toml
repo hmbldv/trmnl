@@ -37,6 +37,7 @@ disabled = true
 
 # -----------------------------------------------------------------------------
 # OS Icon (auto-detected)
+# Nerd Font codepoints: Ubuntu=F31B, Debian=F306, Fedora=F30A, Arch=F303, Apple=F302
 # -----------------------------------------------------------------------------
 [os]
 disabled = false
@@ -44,12 +45,12 @@ format = "[$symbol ]($style)"
 style = "white"
 
 [os.symbols]
-Macos = ""
+Macos = "\uf302"
 Linux = "🐧"
-Ubuntu = ""
-Debian = ""
-Fedora = ""
-Arch = ""
+Ubuntu = "\uf31b"
+Debian = "\uf306"
+Fedora = "\uf30a"
+Arch = "\uf303"
 
 # -----------------------------------------------------------------------------
 # Directory
