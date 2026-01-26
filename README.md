@@ -54,6 +54,8 @@ ktty-trmnl-tmx/
 
 ## Kitty Shortcuts
 
+> These are Kitty's default keybindings. The kitty.conf in this repo sets font and colors only.
+
 | Action | Shortcut |
 |--------|----------|
 | New tab | `Ctrl+Shift+T` |
