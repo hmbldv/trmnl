@@ -9,7 +9,9 @@ command_timeout = 1000
 # Prompt Format
 # -----------------------------------------------------------------------------
 format = """
+$env_var\
 $os\
+$hostname\
 $directory\
 $git_branch\
 $git_status\
@@ -51,6 +53,22 @@ Ubuntu = "\uf31b"
 Debian = "\uf306"
 Fedora = "\uf30a"
 Arch = "\uf303"
+
+# -----------------------------------------------------------------------------
+# SSH Indicator (shows when connected via SSH)
+# -----------------------------------------------------------------------------
+[env_var.SSH_CONNECTION]
+format = "[SSH ](bold yellow)"
+variable = "SSH_CONNECTION"
+
+# -----------------------------------------------------------------------------
+# Hostname (shown after OS icon)
+# -----------------------------------------------------------------------------
+[hostname]
+ssh_only = false
+format = "[$hostname]($style) "
+style = "bold green"
+trim_at = "."
 
 # -----------------------------------------------------------------------------
 # Directory
