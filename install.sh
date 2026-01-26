@@ -352,18 +352,23 @@ main() {
     echo ""
 
     detect_os
-    install_font
-    install_kitty
-    install_tmux
-    install_tpm
-    install_gitmux
-    install_starship
-    install_zsh_plugins
+
+    # Core tools - warn but continue if any fail
+    install_font || warn "Font installation failed (continuing)"
+    install_kitty || warn "Kitty installation failed (continuing)"
+    install_tmux || warn "tmux installation failed (continuing)"
+    install_tpm || warn "TPM installation failed (continuing)"
+    install_gitmux || warn "gitmux installation failed (continuing)"
+    install_starship || warn "Starship installation failed (continuing)"
+    install_zsh_plugins || warn "zsh plugins installation failed (continuing)"
+
+    # Symlinks - these are the critical part
     link_kitty
     link_tmux
     link_zsh
     link_starship
-    install_tmux_plugins
+
+    install_tmux_plugins || warn "tmux plugins installation failed (run 'prefix + I' manually)"
 
     echo ""
     info "Installation complete!"
