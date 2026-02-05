@@ -42,7 +42,7 @@ Three minutes later: same terminal experience everywhere.
 | **Always know where you are** | OS icon, hostname, git branch, directory—visible at a glance |
 | **Split panes, persistent sessions** | Disconnect from SSH, reconnect later, pick up where you left off |
 | **Same setup everywhere** | macOS, Linux, VMs, remote servers—identical muscle memory |
-| **Clean, consistent look** | Professional aesthetic that doesn't fight you |
+| **Clean, consistent look** | Unified earthy palette across every tool |
 
 ---
 
@@ -60,11 +60,15 @@ Three minutes later: same terminal experience everywhere.
 
 | Tool | What It Does |
 |------|--------------|
-| **Kitty** | Fast terminal with tabs, splits, and image support (optional—works with your existing terminal too) |
+| **Kitty** | GPU-accelerated terminal with tabs, splits, and image support (optional) |
+| **Alacritty** | GPU-accelerated terminal, minimal and fast (optional) |
 | **tmux** | Split your screen into panes. Sessions survive disconnects—close the window, come back tomorrow, everything's still there |
 | **zsh** | Modern shell with syntax highlighting and suggestions as you type |
 | **Starship** | Smart prompt that shows git status, current directory, and OS icon |
+| **fzf** | Fuzzy finder for files, history, and anything searchable |
+| **zoxide** | Smarter `cd` that learns your most-used directories |
 | **gitmux** | Git branch and status in your tmux status bar |
+| **fastfetch** | System info displayed on shell startup |
 
 ---
 
@@ -100,13 +104,14 @@ This repo is my fix. One config that follows me everywhere.
 
 ## Supported Platforms
 
-| Platform | Status |
-|----------|--------|
-| macOS (Homebrew) | Supported |
-| Ubuntu / Debian | Supported |
-| Fedora | Supported |
-| Arch | Supported |
-| Windows | Use WSL |
+| Platform | Status | Recommended Terminal |
+|----------|--------|----------------------|
+| macOS (Homebrew) | Supported | Kitty or Alacritty |
+| Ubuntu / Debian | Supported | Kitty or Alacritty |
+| Fedora | Supported | Kitty or Alacritty |
+| Arch | Supported | Kitty or Alacritty |
+| VMs / SSH | Supported | Native terminal (auto-detected) |
+| Windows | Use WSL | Native terminal |
 
 ---
 
