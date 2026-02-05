@@ -134,25 +134,25 @@ select_terminal_mode() {
     echo "  1) Kitty       (GPU-accelerated, feature-rich)"
     echo "     - Requires OpenGL 3.3 and direct display access"
     if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
-        echo "     ${YELLOW}⚠ May not work in your current environment${NC}"
+        echo -e "     ${YELLOW}⚠ May not work in your current environment${NC}"
     fi
     echo ""
     echo "  2) Alacritty   (GPU-accelerated, minimal config)"
     echo "     - Requires OpenGL 3.3 and direct display access"
     if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
-        echo "     ${YELLOW}⚠ May not work in your current environment${NC}"
+        echo -e "     ${YELLOW}⚠ May not work in your current environment${NC}"
     fi
     echo ""
     echo "  3) Terminal only (shell, prompt, and tmux — no emulator)"
     echo "     - Works everywhere including VMs and SSH"
     if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
-        echo "     ${GREEN}✓ Recommended for your environment${NC}"
+        echo -e "     ${GREEN}✓ Recommended for your environment${NC}"
     fi
     echo ""
     echo "  4) All of the above (Kitty + Alacritty + everything)"
     echo "     - Installs both terminal emulators plus all tools"
     if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
-        echo "     ${YELLOW}⚠ Emulators may not work in your current environment${NC}"
+        echo -e "     ${YELLOW}⚠ Emulators may not work in your current environment${NC}"
     fi
     echo ""
 
@@ -853,8 +853,8 @@ prompt_change_shell() {
     echo ""
 
     if [[ "$IS_SSH" == "true" ]]; then
-        echo "${YELLOW}Note: You're connected via SSH. After changing your shell,"
-        echo "      you'll need to reconnect for it to take effect.${NC}"
+        echo -e "${YELLOW}Note: You're connected via SSH. After changing your shell,"
+        echo -e "      you'll need to reconnect for it to take effect.${NC}"
         echo ""
     fi
 
@@ -866,7 +866,7 @@ prompt_change_shell() {
             info "Default shell changed to zsh"
             if [[ "$IS_SSH" == "true" ]]; then
                 echo ""
-                echo "${GREEN}Reconnect to your SSH session to use zsh.${NC}"
+                echo -e "${GREEN}Reconnect to your SSH session to use zsh.${NC}"
             else
                 echo ""
                 echo "Restart your terminal or run 'zsh' to start using it."
@@ -907,12 +907,12 @@ print_instructions() {
 
     if [[ "$TERMINAL_MODE" == "native" ]]; then
         if [[ "$OS" == "macos" ]]; then
-            echo "  ${YELLOW}Font configuration (required for icons):${NC}"
+            echo -e "  ${YELLOW}Font configuration (required for icons):${NC}"
             echo "  3. Open Terminal → Settings → Profiles → [Your Profile] → Text"
             echo "  4. Click 'Change...' next to Font"
             echo "  5. Select 'JetBrainsMono Nerd Font Mono' at size 12"
         else
-            echo "  ${YELLOW}Font configuration:${NC}"
+            echo -e "  ${YELLOW}Font configuration:${NC}"
             echo "  Ensure your terminal emulator uses 'JetBrainsMono Nerd Font'"
             echo "  for proper icon rendering in the prompt and tmux status bar."
         fi

@@ -103,7 +103,6 @@ if command -v fzf &>/dev/null; then
 --color=bg+:#313244,bg:#1e1e2e,spinner:#5da4ad,hl:#c98a94 \
 --color=fg:#cdd6f4,header:#c98a94,info:#8b6aad,pointer:#5da4ad \
 --color=marker:#7a9e5a,fg+:#cdd6f4,prompt:#8b6aad,hl+:#c98a94 \
---color=selected-bg:#45475a \
 --multi"
 fi
 
