@@ -1,18 +1,28 @@
 # =============================================================================
-# ktty-trmnl-tmx :: Starship Prompt Config
+# trmnl :: Starship Prompt Config — Pixel Powerline
 # =============================================================================
 
 # Timeout for commands (ms)
 command_timeout = 1000
 
+# Use Catppuccin Mocha palette
+palette = "catppuccin_mocha"
+
 # -----------------------------------------------------------------------------
 # Prompt Format
+# Pixel separators (\ue0c6 / \ue0c7) between colored segments
+# Segments: [Identity:green] [Directory:blue] [Git:mauve] langs...
 # -----------------------------------------------------------------------------
 format = """
-$env_var\
+[░▒▓](fg:green)\
 $os\
+$username\
 $hostname\
+[▓▒░](fg:green)\
+[ ]()\
+[░▒▓](fg:blue)\
 $directory\
+[▓▒░](fg:blue)\
 $git_branch\
 $git_status\
 $python\
@@ -38,37 +48,44 @@ disabled = true
 disabled = true
 
 # -----------------------------------------------------------------------------
-# OS Icon (auto-detected, brand colors)
-# Nerd Font codepoints: Ubuntu=F31B, Debian=F306, Fedora=F30A, Arch=F303, Apple=F302
-# Note: Colors embedded in symbols since os module has single style
+# OS Icon
 # -----------------------------------------------------------------------------
 [os]
 disabled = false
-format = "$symbol"
-style = "white"
+format = "[$symbol]($style)"
+style = "bold fg:crust bg:green"
 
 [os.symbols]
-Macos = "[\uf302](white)[ ](#888888)"
-Linux = "[🐧](white)[ ](#888888)"
-Ubuntu = "[\uf31b](bold #E95420)[ ](#a34517)"
-Debian = "[\uf306](bold #A81D33)[ ](#6e1322)"
-Fedora = "[\uf30a](bold #51A2DA)[ ](#3a7199)"
-Arch = "[\uf303](bold #1793D1)[ ](#10628c)"
+Macos = " "
+Linux = " "
+Ubuntu = " "
+Debian = " "
+Fedora = " "
+Arch = " "
 
 # -----------------------------------------------------------------------------
-# SSH Indicator (shows when connected via SSH)
+# Username
+# -----------------------------------------------------------------------------
+[username]
+show_always = true
+format = "[$user]($style)"
+style_user = "bold fg:crust bg:green"
+style_root = "bold fg:red bg:green"
+
+# -----------------------------------------------------------------------------
+# SSH Indicator
 # -----------------------------------------------------------------------------
 [env_var.SSH_CONNECTION]
 format = "[SSH ](bold yellow)"
 variable = "SSH_CONNECTION"
 
 # -----------------------------------------------------------------------------
-# Hostname (shown after OS icon)
+# Hostname (atom icon separator before hostname)
 # -----------------------------------------------------------------------------
 [hostname]
 ssh_only = false
-format = "[$hostname]($style) "
-style = "bold green"
+format = "[ \ue764 $hostname]($style)"
+style = "bold fg:crust bg:green"
 trim_at = "."
 
 # -----------------------------------------------------------------------------
@@ -77,39 +94,40 @@ trim_at = "."
 [directory]
 truncation_length = 3
 truncate_to_repo = true
-style = "blue bold"
+format = "[ $path]($style)"
+style = "bold fg:crust bg:blue"
 
 # -----------------------------------------------------------------------------
 # Git
 # -----------------------------------------------------------------------------
 [git_branch]
-format = "[$symbol$branch]($style) "
-style = "purple"
+format = "[ ]()[░▒▓](fg:mauve)[ $symbol$branch]($style)"
+style = "bold fg:crust bg:mauve"
 
 [git_status]
-format = '([\[$all_status$ahead_behind\]]($style) )'
-style = "red"
+format = '([  $all_status$ahead_behind]($style)[▓▒░](fg:mauve))'
+style = "bold fg:crust bg:mauve"
 
 # -----------------------------------------------------------------------------
-# Languages (only show when relevant)
+# Languages (unsegmented, no background)
 # -----------------------------------------------------------------------------
 [python]
-format = "[$symbol$version]($style) "
+format = " [$symbol$version]($style)"
 symbol = " "
 style = "yellow"
 
 [nodejs]
-format = "[$symbol$version]($style) "
+format = " [$symbol$version]($style)"
 symbol = " "
 style = "green"
 
 [rust]
-format = "[$symbol$version]($style) "
+format = " [$symbol$version]($style)"
 symbol = " "
 style = "red"
 
 [golang]
-format = "[$symbol$version]($style) "
+format = " [$symbol$version]($style)"
 symbol = " "
 style = "cyan"
 
@@ -117,13 +135,13 @@ style = "cyan"
 # Infrastructure
 # -----------------------------------------------------------------------------
 [docker_context]
-format = "[$symbol$context]($style) "
+format = " [$symbol$context]($style)"
 symbol = " "
 style = "blue"
 only_with_files = true
 
 [kubernetes]
-format = "[$symbol$context]($style) "
+format = " [$symbol$context]($style)"
 symbol = "☸ "
 style = "cyan"
 disabled = false
@@ -133,7 +151,7 @@ disabled = false
 # -----------------------------------------------------------------------------
 [cmd_duration]
 min_time = 2000
-format = "[$duration]($style) "
+format = " [$duration]($style)"
 style = "yellow"
 
 # -----------------------------------------------------------------------------
@@ -142,3 +160,34 @@ style = "yellow"
 [character]
 success_symbol = "[❯](green)"
 error_symbol = "[❯](red)"
+
+# =============================================================================
+# Catppuccin Mocha Palette
+# =============================================================================
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo  = "#f2cdcd"
+pink      = "#f5c2e7"
+mauve     = "#cba6f7"
+red       = "#f38ba8"
+maroon    = "#eba0ac"
+peach     = "#fab387"
+yellow    = "#f9e2af"
+green     = "#a6e3a1"
+teal      = "#94e2d5"
+sky       = "#89dceb"
+sapphire  = "#74c7ec"
+blue      = "#89b4fa"
+lavender  = "#b4befe"
+text      = "#cdd6f4"
+subtext1  = "#bac2de"
+subtext0  = "#a6adc8"
+overlay2  = "#9399b2"
+overlay1  = "#7f849c"
+overlay0  = "#6c7086"
+surface2  = "#585b70"
+surface1  = "#45475a"
+surface0  = "#313244"
+base      = "#1e1e2e"
+mantle    = "#181825"
+crust     = "#11111b"
