@@ -60,7 +60,7 @@ variable = "SSH_CONNECTION"
 # -----------------------------------------------------------------------------
 [os]
 disabled = false
-format = "[ $symbol]($style)"
+format = "[$symbol]($style)"
 style = "bold fg:crust bg:seg_green"
 
 [os.symbols]
@@ -193,6 +193,6 @@ base      = "#1e1e2e"
 mantle    = "#181825"
 crust     = "#11111b"
 # Muted segment backgrounds
-seg_green = "#8bbf8a"
-seg_blue  = "#7ba1d9"
-seg_mauve = "#b494d6"
+seg_green = "#7dae82"
+seg_blue  = "#6b92bf"
+seg_mauve = "#a688c4"
