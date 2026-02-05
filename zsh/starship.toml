@@ -1,28 +1,31 @@
 # =============================================================================
-# trmnl :: Starship Prompt Config — Triangle Powerline
+# trmnl :: Starship Prompt Config — Rounded Powerline
 # =============================================================================
 
 # Timeout for commands (ms)
 command_timeout = 1000
 
-# Use Catppuccin Mocha palette
+# Use Catppuccin Mocha palette (with muted segment overrides)
 palette = "catppuccin_mocha"
 
 # -----------------------------------------------------------------------------
 # Prompt Format
-# Triangle separator (\ue0b0) at right edge of each colored segment
-# Segments: [Identity:green] [Directory:blue] [Git:mauve] langs...
+# Rounded open (\ue0b6) + triangle transitions (\ue0b0) between segments
+# Colors waterfall: seg_green → seg_blue → seg_mauve → terminal bg
+# Segments: [Identity:seg_green] [Directory:seg_blue] [Git:seg_mauve] langs...
 # -----------------------------------------------------------------------------
 format = """
 $env_var\
+[\ue0b6](fg:seg_green)\
 $os\
 $username\
 $hostname\
-[\ue0b0](fg:green) \
+[\ue0b0](fg:seg_green bg:seg_blue)\
 $directory\
-[\ue0b0](fg:blue)\
+[\ue0b0](fg:seg_blue bg:seg_mauve)\
 $git_branch\
 $git_status\
+[\ue0b0](fg:seg_mauve)\
 $python\
 $nodejs\
 $rust\
@@ -58,7 +61,7 @@ variable = "SSH_CONNECTION"
 [os]
 disabled = false
 format = "[ $symbol]($style)"
-style = "bold fg:crust bg:green"
+style = "bold fg:crust bg:seg_green"
 
 [os.symbols]
 Macos = "\uf179"
@@ -74,16 +77,16 @@ Arch = "\uf303"
 [username]
 show_always = true
 format = "[ $user]($style)"
-style_user = "bold fg:crust bg:green"
-style_root = "bold fg:red bg:green"
+style_user = "bold fg:crust bg:seg_green"
+style_root = "bold fg:red bg:seg_green"
 
 # -----------------------------------------------------------------------------
-# Hostname (bold atom icon separator before hostname)
+# Hostname (nf-md-atom icon between user and hostname)
 # -----------------------------------------------------------------------------
 [hostname]
 ssh_only = false
-format = "[ \ue764 $hostname ]($style)"
-style = "bold fg:crust bg:green"
+format = "[ \U000f0768 $hostname ]($style)"
+style = "bold fg:crust bg:seg_green"
 trim_at = "."
 
 # -----------------------------------------------------------------------------
@@ -93,18 +96,18 @@ trim_at = "."
 truncation_length = 3
 truncate_to_repo = true
 format = "[ $path ]($style)"
-style = "bold fg:crust bg:blue"
+style = "bold fg:crust bg:seg_blue"
 
 # -----------------------------------------------------------------------------
 # Git
 # -----------------------------------------------------------------------------
 [git_branch]
-format = " [ $symbol$branch ]($style)"
-style = "bold fg:crust bg:mauve"
+format = "[ $symbol$branch ]($style)"
+style = "bold fg:crust bg:seg_mauve"
 
 [git_status]
-format = "([$all_status$ahead_behind ]($style))[\ue0b0](fg:mauve)"
-style = "bold fg:crust bg:mauve"
+format = "([$all_status$ahead_behind ]($style))"
+style = "bold fg:crust bg:seg_mauve"
 
 # -----------------------------------------------------------------------------
 # Languages (unsegmented, no background)
@@ -160,7 +163,7 @@ success_symbol = "[❯](green)"
 error_symbol = "[❯](red)"
 
 # =============================================================================
-# Catppuccin Mocha Palette
+# Catppuccin Mocha Palette — with muted segment backgrounds
 # =============================================================================
 [palettes.catppuccin_mocha]
 rosewater = "#f5e0dc"
@@ -189,3 +192,7 @@ surface0  = "#313244"
 base      = "#1e1e2e"
 mantle    = "#181825"
 crust     = "#11111b"
+# Muted segment backgrounds
+seg_green = "#8bbf8a"
+seg_blue  = "#7ba1d9"
+seg_mauve = "#b494d6"
