@@ -1,5 +1,5 @@
 # =============================================================================
-# trmnl :: Starship Prompt Config — Pixel Powerline
+# trmnl :: Starship Prompt Config — Triangle Powerline
 # =============================================================================
 
 # Timeout for commands (ms)
@@ -10,7 +10,7 @@ palette = "catppuccin_mocha"
 
 # -----------------------------------------------------------------------------
 # Prompt Format
-# Pixel separator (\ue0c4) dissolves right edge of each colored segment
+# Triangle separator (\ue0b0) at right edge of each colored segment
 # Segments: [Identity:green] [Directory:blue] [Git:mauve] langs...
 # -----------------------------------------------------------------------------
 format = """
@@ -18,9 +18,9 @@ $env_var\
 $os\
 $username\
 $hostname\
-[\ue0c4](fg:green) \
+[\ue0b0](fg:green) \
 $directory\
-[\ue0c4](fg:blue)\
+[\ue0b0](fg:blue)\
 $git_branch\
 $git_status\
 $python\
@@ -57,23 +57,23 @@ variable = "SSH_CONNECTION"
 # -----------------------------------------------------------------------------
 [os]
 disabled = false
-format = "[ $symbol ]($style)"
+format = "[ $symbol]($style)"
 style = "bold fg:crust bg:green"
 
 [os.symbols]
-Macos = ""
-Linux = ""
-Ubuntu = ""
-Debian = ""
-Fedora = ""
-Arch = ""
+Macos = "\uf179"
+Linux = "\uf17c"
+Ubuntu = "\uf31b"
+Debian = "\uf306"
+Fedora = "\uf30a"
+Arch = "\uf303"
 
 # -----------------------------------------------------------------------------
 # Username
 # -----------------------------------------------------------------------------
 [username]
 show_always = true
-format = "[$user]($style)"
+format = "[ $user]($style)"
 style_user = "bold fg:crust bg:green"
 style_root = "bold fg:red bg:green"
 
@@ -82,7 +82,7 @@ style_root = "bold fg:red bg:green"
 # -----------------------------------------------------------------------------
 [hostname]
 ssh_only = false
-format = "[\ue764 $hostname ]($style)"
+format = "[ \ue764 $hostname ]($style)"
 style = "bold fg:crust bg:green"
 trim_at = "."
 
@@ -103,7 +103,7 @@ format = " [ $symbol$branch ]($style)"
 style = "bold fg:crust bg:mauve"
 
 [git_status]
-format = "([$all_status$ahead_behind ]($style))[\ue0c4](fg:mauve)"
+format = "([$all_status$ahead_behind ]($style))[\ue0b0](fg:mauve)"
 style = "bold fg:crust bg:mauve"
 
 # -----------------------------------------------------------------------------
