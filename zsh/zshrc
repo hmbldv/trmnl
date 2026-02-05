@@ -93,7 +93,12 @@ source "${0:A:h}/git-worktree.zsh" 2>/dev/null || true
 # fzf — fuzzy finder
 # -----------------------------------------------------------------------------
 if command -v fzf &>/dev/null; then
-    eval "$(fzf --zsh)"
+    if fzf --zsh &>/dev/null; then
+        eval "$(fzf --zsh)"
+    elif [[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]]; then
+        source /usr/share/doc/fzf/examples/key-bindings.zsh
+        source /usr/share/doc/fzf/examples/completion.zsh 2>/dev/null
+    fi
     export FZF_DEFAULT_OPTS=" \
 --color=bg+:#313244,bg:#1e1e2e,spinner:#5da4ad,hl:#f38ba8 \
 --color=fg:#cdd6f4,header:#f38ba8,info:#8b6aad,pointer:#5da4ad \
