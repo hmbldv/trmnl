@@ -163,23 +163,25 @@ success_symbol = "[❯](green)"
 error_symbol = "[❯](red)"
 
 # =============================================================================
-# Catppuccin Mocha Palette — with muted segment backgrounds
+# trmnl Palette — earthy/muted tones
+# Text colors (brighter, for fg on dark bg)
+# Segment colors (darker, for bg with dark text)
 # =============================================================================
 [palettes.catppuccin_mocha]
-rosewater = "#f5e0dc"
-flamingo  = "#f2cdcd"
-pink      = "#f5c2e7"
-mauve     = "#cba6f7"
-red       = "#f38ba8"
-maroon    = "#eba0ac"
-peach     = "#fab387"
-yellow    = "#f9e2af"
-green     = "#a6e3a1"
-teal      = "#94e2d5"
-sky       = "#89dceb"
-sapphire  = "#74c7ec"
-blue      = "#89b4fa"
-lavender  = "#b4befe"
+rosewater = "#d4b4ac"
+flamingo  = "#cca8a0"
+pink      = "#c9a0b8"
+mauve     = "#b498d4"
+red       = "#c98a94"
+maroon    = "#c49898"
+peach     = "#c9a078"
+yellow    = "#c9b468"
+green     = "#a0c48a"
+teal      = "#7dbfc9"
+sky       = "#7dbfc9"
+sapphire  = "#6ab4be"
+blue      = "#8ec8d0"
+lavender  = "#b498d4"
 text      = "#cdd6f4"
 subtext1  = "#bac2de"
 subtext0  = "#a6adc8"
@@ -192,7 +194,7 @@ surface0  = "#313244"
 base      = "#1e1e2e"
 mantle    = "#181825"
 crust     = "#11111b"
-# Muted segment backgrounds
+# Segment backgrounds (darker for bg with crust text)
 seg_green = "#7a9e5a"
 seg_blue  = "#5da4ad"
 seg_mauve = "#8b6aad"

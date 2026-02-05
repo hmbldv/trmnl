@@ -33,9 +33,9 @@ text = "#b8d4e6"
 
 [colors.normal]
 black   = "#2a3a42"
-red     = "#f38ba8"
+red     = "#c98a94"
 green   = "#7a9e5a"
-yellow  = "#e3cd7b"
+yellow  = "#c9b468"
 blue    = "#5da4ad"
 magenta = "#8b6aad"
 cyan    = "#4d9aa8"
@@ -43,9 +43,9 @@ white   = "#b8d4e6"
 
 [colors.bright]
 black   = "#4a5a62"
-red     = "#f5a0b8"
+red     = "#d9a4ac"
 green   = "#a0c48a"
-yellow  = "#f9e2af"
+yellow  = "#d9cc8e"
 blue    = "#8ec8d0"
 magenta = "#b498d4"
 cyan    = "#7dbfc9"
