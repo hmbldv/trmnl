@@ -1,11 +1,12 @@
 #!/bin/bash
-# ktty-trmnl-tmx install script
-# Installs kitty, tmux, zsh plugins, starship, fonts, and symlinks configs
+# trmnl install script
+# Installs terminal emulators, tmux, zsh plugins, starship, fonts, CLI tools, and symlinks configs
 
 set -e
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KITTY_CONFIG="$HOME/.config/kitty"
+ALACRITTY_CONFIG="$HOME/.config/alacritty"
 STARSHIP_CONFIG="$HOME/.config/starship.toml"
 TMUX_CONFIG="$HOME/.tmux.conf"
 ZSHRC="$HOME/.zshrc"
@@ -128,31 +129,41 @@ select_terminal_mode() {
         echo ""
     fi
 
-    echo "Choose your terminal emulator:"
+    echo "Choose your setup:"
     echo ""
-    echo "  1) Kitty (GPU-accelerated, feature-rich)"
+    echo "  1) Kitty       (GPU-accelerated, feature-rich)"
     echo "     - Requires OpenGL 3.3 and direct display access"
-    echo "     - Best for: Native installs on physical machines"
     if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
         echo "     ${YELLOW}⚠ May not work in your current environment${NC}"
     fi
     echo ""
-    echo "  2) Native Terminal (Terminal.app on macOS, system default on Linux)"
+    echo "  2) Alacritty   (GPU-accelerated, minimal config)"
+    echo "     - Requires OpenGL 3.3 and direct display access"
+    if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
+        echo "     ${YELLOW}⚠ May not work in your current environment${NC}"
+    fi
+    echo ""
+    echo "  3) Terminal only (shell, prompt, and tmux — no emulator)"
     echo "     - Works everywhere including VMs and SSH"
-    echo "     - Best for: VMs, remote servers, compatibility"
     if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
         echo "     ${GREEN}✓ Recommended for your environment${NC}"
+    fi
+    echo ""
+    echo "  4) All of the above (Kitty + Alacritty + everything)"
+    echo "     - Installs both terminal emulators plus all tools"
+    if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
+        echo "     ${YELLOW}⚠ Emulators may not work in your current environment${NC}"
     fi
     echo ""
 
     # Default recommendation based on environment
     local default_choice="1"
     if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
-        default_choice="2"
+        default_choice="3"
     fi
 
     while true; do
-        read -p "Select terminal [1/2] (default: $default_choice): " choice
+        read -p "Select terminal [1/2/3/4] (default: $default_choice): " choice
         choice="${choice:-$default_choice}"
 
         case "$choice" in
@@ -162,7 +173,7 @@ select_terminal_mode() {
                     echo ""
                     warn "You selected Kitty in a potentially incompatible environment."
                     echo "      If Kitty fails to launch, you can re-run this installer"
-                    echo "      and select option 2 (Native Terminal) instead."
+                    echo "      and select option 3 (Terminal only) instead."
                     echo ""
                     read -p "Continue with Kitty? [y/N]: " confirm
                     if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
@@ -173,12 +184,43 @@ select_terminal_mode() {
                 break
                 ;;
             2)
+                TERMINAL_MODE="alacritty"
+                if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
+                    echo ""
+                    warn "You selected Alacritty in a potentially incompatible environment."
+                    echo "      If Alacritty fails to launch, you can re-run this installer"
+                    echo "      and select option 3 (Terminal only) instead."
+                    echo ""
+                    read -p "Continue with Alacritty? [y/N]: " confirm
+                    if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+                        continue
+                    fi
+                fi
+                info "Selected: Alacritty terminal"
+                break
+                ;;
+            3)
                 TERMINAL_MODE="native"
-                info "Selected: Native terminal"
+                info "Selected: Terminal only (no emulator)"
+                break
+                ;;
+            4)
+                TERMINAL_MODE="all"
+                if [[ "$IS_VM" == "true" || "$IS_SSH" == "true" ]]; then
+                    echo ""
+                    warn "You selected All in a potentially incompatible environment."
+                    echo "      Terminal emulators may not work, but shell/prompt/tmux will."
+                    echo ""
+                    read -p "Continue? [y/N]: " confirm
+                    if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+                        continue
+                    fi
+                fi
+                info "Selected: All (Kitty + Alacritty + everything)"
                 break
                 ;;
             *)
-                echo "Invalid choice. Please enter 1 or 2."
+                echo "Invalid choice. Please enter 1, 2, 3, or 4."
                 ;;
         esac
     done
@@ -340,6 +382,135 @@ install_kitty() {
             ;;
         arch)
             sudo pacman -S --noconfirm kitty
+            ;;
+    esac
+}
+
+# Install Alacritty
+install_alacritty() {
+    info "Checking for Alacritty..."
+
+    if command -v alacritty &>/dev/null; then
+        info "Alacritty already installed: $(alacritty --version)"
+        return
+    fi
+
+    info "Installing Alacritty..."
+
+    case "$OS" in
+        macos)
+            brew install --cask alacritty
+            ;;
+        debian)
+            if sudo apt install -y alacritty 2>/dev/null; then
+                info "Alacritty installed via apt"
+            elif command -v cargo &>/dev/null; then
+                info "apt package not available, building with cargo..."
+                cargo install alacritty
+            else
+                warn "Alacritty not in apt repos and cargo not found. Install manually or install Rust first."
+            fi
+            ;;
+        arch)
+            sudo pacman -S --noconfirm alacritty
+            ;;
+        fedora)
+            sudo dnf install -y alacritty
+            ;;
+        *)
+            warn "Could not auto-install Alacritty. Install manually."
+            ;;
+    esac
+}
+
+# Install fzf
+install_fzf() {
+    info "Checking for fzf..."
+
+    if command -v fzf &>/dev/null; then
+        info "fzf already installed: $(fzf --version)"
+        return
+    fi
+
+    info "Installing fzf..."
+
+    case "$OS" in
+        macos)
+            brew install fzf
+            ;;
+        debian)
+            sudo apt install -y fzf
+            ;;
+        arch)
+            sudo pacman -S --noconfirm fzf
+            ;;
+        fedora)
+            sudo dnf install -y fzf
+            ;;
+        *)
+            warn "Could not auto-install fzf. Install manually."
+            ;;
+    esac
+}
+
+# Install zoxide
+install_zoxide() {
+    info "Checking for zoxide..."
+
+    if command -v zoxide &>/dev/null; then
+        info "zoxide already installed: $(zoxide --version)"
+        return
+    fi
+
+    info "Installing zoxide..."
+
+    case "$OS" in
+        macos)
+            brew install zoxide
+            ;;
+        debian)
+            curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+            ;;
+        arch)
+            sudo pacman -S --noconfirm zoxide
+            ;;
+        fedora)
+            sudo dnf install -y zoxide
+            ;;
+        *)
+            warn "Could not auto-install zoxide. Install manually."
+            ;;
+    esac
+}
+
+# Install fastfetch
+install_fastfetch() {
+    info "Checking for fastfetch..."
+
+    if command -v fastfetch &>/dev/null; then
+        info "fastfetch already installed: $(fastfetch --version 2>/dev/null || echo 'unknown version')"
+        return
+    fi
+
+    info "Installing fastfetch..."
+
+    case "$OS" in
+        macos)
+            brew install fastfetch
+            ;;
+        debian)
+            if ! sudo apt install -y fastfetch 2>/dev/null; then
+                warn "fastfetch not available in apt repos. Install manually from https://github.com/fastfetch-cli/fastfetch"
+            fi
+            ;;
+        arch)
+            sudo pacman -S --noconfirm fastfetch
+            ;;
+        fedora)
+            sudo dnf install -y fastfetch
+            ;;
+        *)
+            warn "Could not auto-install fastfetch. Install manually."
             ;;
     esac
 }
@@ -582,6 +753,22 @@ link_kitty() {
     info "Kitty config linked"
 }
 
+# Symlink alacritty config
+link_alacritty() {
+    info "Linking Alacritty config..."
+
+    mkdir -p "$ALACRITTY_CONFIG"
+
+    if [ -f "$ALACRITTY_CONFIG/alacritty.toml" ] && [ ! -L "$ALACRITTY_CONFIG/alacritty.toml" ]; then
+        warn "Backing up existing alacritty.toml to alacritty.toml.bak"
+        mv "$ALACRITTY_CONFIG/alacritty.toml" "$ALACRITTY_CONFIG/alacritty.toml.bak"
+    fi
+
+    ln -sf "$REPO_DIR/alacritty/alacritty.toml" "$ALACRITTY_CONFIG/alacritty.toml"
+
+    info "Alacritty config linked"
+}
+
 # Symlink tmux config
 link_tmux() {
     info "Linking tmux config..."
@@ -698,23 +885,27 @@ print_instructions() {
     info "Installation complete!"
     echo ""
 
-    if [[ "$TERMINAL_MODE" == "kitty" ]]; then
-        echo "Next steps:"
-        echo "  1. Restart your terminal (or run: source ~/.zshrc)"
-        echo "  2. Reload Kitty config: Ctrl+Shift+F5"
-        echo "  3. Start tmux and press 'Ctrl+A I' to install plugins (if needed)"
-        echo ""
-        echo "Quick tips:"
+    if [[ "$TERMINAL_MODE" == "kitty" || "$TERMINAL_MODE" == "all" ]]; then
+        echo "Kitty tips:"
+        echo "  - Reload config: Ctrl+Shift+F5"
         echo "  - SSH with Kitty features: kitty +kitten ssh hostname"
         echo "  - View images: kitty +kitten icat image.png"
-        echo "  - Reload zsh: source ~/.zshrc"
-        echo "  - Reload tmux: Ctrl+A r"
-    else
-        echo "Next steps:"
-        echo "  1. Restart your terminal (or run: source ~/.zshrc)"
-        echo "  2. Start tmux and press 'Ctrl+A I' to install plugins (if needed)"
         echo ""
+    fi
 
+    if [[ "$TERMINAL_MODE" == "alacritty" || "$TERMINAL_MODE" == "all" ]]; then
+        echo "Alacritty tips:"
+        echo "  - Config is live-reloaded on save"
+        echo "  - Config location: ~/.config/alacritty/alacritty.toml"
+        echo ""
+    fi
+
+    echo "Next steps:"
+    echo "  1. Restart your terminal (or run: source ~/.zshrc)"
+    echo "  2. Start tmux and press 'Ctrl+A I' to install plugins (if needed)"
+    echo ""
+
+    if [[ "$TERMINAL_MODE" == "native" ]]; then
         if [[ "$OS" == "macos" ]]; then
             echo "  ${YELLOW}Font configuration (required for icons):${NC}"
             echo "  3. Open Terminal → Settings → Profiles → [Your Profile] → Text"
@@ -726,16 +917,17 @@ print_instructions() {
             echo "  for proper icon rendering in the prompt and tmux status bar."
         fi
         echo ""
-        echo "Quick tips:"
-        echo "  - Reload zsh: source ~/.zshrc"
-        echo "  - Reload tmux: Ctrl+A r"
     fi
+
+    echo "Quick tips:"
+    echo "  - Reload zsh: source ~/.zshrc"
+    echo "  - Reload tmux: Ctrl+A r"
 }
 
 # Main
 main() {
     echo "================================"
-    echo "  ktty-trmnl-tmx installer"
+    echo "  trmnl installer"
     echo "================================"
     echo ""
 
@@ -755,26 +947,32 @@ main() {
     echo "================================"
     echo ""
 
-    # Core tools - warn but continue if any fail
+    # Core tools (always installed)
     install_font || warn "Font installation failed (continuing)"
-
-    # Only install Kitty if user selected it
-    if [[ "$TERMINAL_MODE" == "kitty" ]]; then
-        install_kitty || warn "Kitty installation failed (continuing)"
-    else
-        info "Skipping Kitty installation (Native Terminal mode)"
-    fi
-
     install_tmux || warn "tmux installation failed (continuing)"
     install_tpm || warn "TPM installation failed (continuing)"
     install_gitmux || warn "gitmux installation failed (continuing)"
     install_starship || warn "Starship installation failed (continuing)"
     install_zsh || warn "zsh installation failed (continuing)"
     install_zsh_plugins || warn "zsh plugins installation failed (continuing)"
+    install_fzf || warn "fzf installation failed (continuing)"
+    install_zoxide || warn "zoxide installation failed (continuing)"
+    install_fastfetch || warn "fastfetch installation failed (continuing)"
 
-    # Symlinks - these are the critical part
-    if [[ "$TERMINAL_MODE" == "kitty" ]]; then
+    # Terminal emulator(s) based on selection
+    if [[ "$TERMINAL_MODE" == "kitty" || "$TERMINAL_MODE" == "all" ]]; then
+        install_kitty || warn "Kitty installation failed (continuing)"
+    fi
+    if [[ "$TERMINAL_MODE" == "alacritty" || "$TERMINAL_MODE" == "all" ]]; then
+        install_alacritty || warn "Alacritty installation failed (continuing)"
+    fi
+
+    # Symlinks
+    if [[ "$TERMINAL_MODE" == "kitty" || "$TERMINAL_MODE" == "all" ]]; then
         link_kitty
+    fi
+    if [[ "$TERMINAL_MODE" == "alacritty" || "$TERMINAL_MODE" == "all" ]]; then
+        link_alacritty
     fi
     link_tmux
     link_zsh
