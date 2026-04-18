@@ -79,8 +79,8 @@ case "$(uname -s)" in
             source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
         fi
 
-        # Local bin
-        export PATH="$HOME/.local/bin:$PATH"
+        # Local bin + Go tools
+        export PATH="$HOME/.local/bin:$HOME/go/bin:$PATH"
         ;;
 esac
 
@@ -105,7 +105,6 @@ if command -v fzf &>/dev/null; then
 --color=marker:#7a9e5a,fg+:#cdd6f4,prompt:#8b6aad,hl+:#c98a94 \
 --multi"
 fi
-
 # -----------------------------------------------------------------------------
 # bat
 # -----------------------------------------------------------------------------
@@ -147,3 +146,34 @@ fi
 if command -v starship &>/dev/null; then
     eval "$(starship init zsh)"
 fi
+
+# pnpm
+export PNPM_HOME="/home/doop/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# bun completions
+[ -s "/home/doop/.bun/_bun" ] && source "/home/doop/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+alias claude-mem='/home/doop/.bun/bin/bun "/home/doop/.claude/plugins/cache/thedotmack/claude-mem/10.5.5/scripts/worker-service.cjs"'
+
+# -----------------------------------------------------------------------------
+# Claude Code Stack — Environment Variables
+# -----------------------------------------------------------------------------
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=true
+export ENABLE_TOOL_SEARCH=true
+export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=85
+export CLAUDE_CODE_NO_FLICKER=1
+
+. "$HOME/.local/bin/env"
