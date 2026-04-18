@@ -10,16 +10,40 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 
 # -----------------------------------------------------------------------------
-# Listing (cross-platform color support)
+# Listing (eza with fallback)
 # -----------------------------------------------------------------------------
-if [[ "$(uname)" == "Darwin" ]]; then
-    alias ls='ls -G'
+if command -v eza &>/dev/null; then
+    alias ls='eza'
+    alias ll='eza -la --git'
+    alias la='eza -a'
+    alias l='eza -l --git'
+    alias lt='eza -la --tree --level=2 --git'
 else
-    alias ls='ls --color=auto'
+    case "$(uname -s)" in
+        Darwin) alias ls='ls -G' ;;
+        *)      alias ls='ls --color=auto' ;;
+    esac
+    alias ll='ls -lah'
+    alias la='ls -a'
+    alias l='ls -l'
 fi
-alias ll='ls -lah'
-alias la='ls -A'
-alias l='ls -CF'
+
+# -----------------------------------------------------------------------------
+# bat (syntax-highlighted cat)
+# -----------------------------------------------------------------------------
+if command -v bat &>/dev/null; then
+    alias cat='bat --paging=never'
+elif command -v batcat &>/dev/null; then
+    alias bat='batcat'
+    alias cat='batcat --paging=never'
+fi
+
+# -----------------------------------------------------------------------------
+# fd (modern find)
+# -----------------------------------------------------------------------------
+if command -v fdfind &>/dev/null && ! command -v fd &>/dev/null; then
+    alias fd='fdfind'
+fi
 
 # -----------------------------------------------------------------------------
 # Safety

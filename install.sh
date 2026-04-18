@@ -515,6 +515,96 @@ install_fastfetch() {
     esac
 }
 
+# Install fd
+install_fd() {
+    info "Checking for fd..."
+    if command -v fd &>/dev/null || command -v fdfind &>/dev/null; then
+        info "fd already installed"
+        return
+    fi
+    info "Installing fd..."
+    case "$OS" in
+        macos)   brew install fd ;;
+        debian)  sudo apt install -y fd-find ;;
+        arch)    sudo pacman -S --noconfirm fd ;;
+        fedora)  sudo dnf install -y fd-find ;;
+        *)       warn "Could not auto-install fd." ;;
+    esac
+}
+
+# Install bat
+install_bat() {
+    info "Checking for bat..."
+    if command -v bat &>/dev/null || command -v batcat &>/dev/null; then
+        info "bat already installed"
+        return
+    fi
+    info "Installing bat..."
+    case "$OS" in
+        macos)   brew install bat ;;
+        debian)  sudo apt install -y bat ;;
+        arch)    sudo pacman -S --noconfirm bat ;;
+        fedora)  sudo dnf install -y bat ;;
+        *)       warn "Could not auto-install bat." ;;
+    esac
+}
+
+# Install delta
+install_delta() {
+    info "Checking for delta..."
+    if command -v delta &>/dev/null; then
+        info "delta already installed"
+        return
+    fi
+    info "Installing delta..."
+    case "$OS" in
+        macos)   brew install git-delta ;;
+        debian)  sudo apt install -y git-delta 2>/dev/null || warn "delta not in apt repos. Install from: https://github.com/dandavison/delta/releases" ;;
+        arch)    sudo pacman -S --noconfirm git-delta ;;
+        fedora)  sudo dnf install -y git-delta ;;
+        *)       warn "Could not auto-install delta." ;;
+    esac
+}
+
+# Install eza
+install_eza() {
+    info "Checking for eza..."
+    if command -v eza &>/dev/null; then
+        info "eza already installed"
+        return
+    fi
+    info "Installing eza..."
+    case "$OS" in
+        macos)   brew install eza ;;
+        debian)
+            sudo mkdir -p /etc/apt/keyrings
+            wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg 2>/dev/null
+            echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list >/dev/null
+            sudo apt update && sudo apt install -y eza
+            ;;
+        arch)    sudo pacman -S --noconfirm eza ;;
+        fedora)  sudo dnf install -y eza ;;
+        *)       warn "Could not auto-install eza." ;;
+    esac
+}
+
+# Install direnv
+install_direnv() {
+    info "Checking for direnv..."
+    if command -v direnv &>/dev/null; then
+        info "direnv already installed"
+        return
+    fi
+    info "Installing direnv..."
+    case "$OS" in
+        macos)   brew install direnv ;;
+        debian)  sudo apt install -y direnv ;;
+        arch)    sudo pacman -S --noconfirm direnv ;;
+        fedora)  sudo dnf install -y direnv ;;
+        *)       warn "Could not auto-install direnv." ;;
+    esac
+}
+
 # Install tmux
 install_tmux() {
     info "Checking for tmux..."
@@ -958,6 +1048,11 @@ main() {
     install_fzf || warn "fzf installation failed (continuing)"
     install_zoxide || warn "zoxide installation failed (continuing)"
     install_fastfetch || warn "fastfetch installation failed (continuing)"
+    install_fd || warn "fd installation failed (continuing)"
+    install_bat || warn "bat installation failed (continuing)"
+    install_delta || warn "delta installation failed (continuing)"
+    install_eza || warn "eza installation failed (continuing)"
+    install_direnv || warn "direnv installation failed (continuing)"
 
     # Terminal emulator(s) based on selection
     if [[ "$TERMINAL_MODE" == "kitty" || "$TERMINAL_MODE" == "all" ]]; then

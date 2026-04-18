@@ -107,10 +107,38 @@ if command -v fzf &>/dev/null; then
 fi
 
 # -----------------------------------------------------------------------------
+# bat
+# -----------------------------------------------------------------------------
+if command -v bat &>/dev/null || command -v batcat &>/dev/null; then
+    export BAT_THEME="ansi"
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+fi
+
+# -----------------------------------------------------------------------------
+# fzf + fd integration
+# -----------------------------------------------------------------------------
+if command -v fd &>/dev/null; then
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+elif command -v fdfind &>/dev/null; then
+    export FZF_DEFAULT_COMMAND='fdfind --type f --hidden --follow --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND='fdfind --type d --hidden --follow --exclude .git'
+fi
+
+# -----------------------------------------------------------------------------
 # zoxide — smart cd
 # -----------------------------------------------------------------------------
 if command -v zoxide &>/dev/null; then
     eval "$(zoxide init zsh)"
+fi
+
+# -----------------------------------------------------------------------------
+# direnv
+# -----------------------------------------------------------------------------
+if command -v direnv &>/dev/null; then
+    eval "$(direnv hook zsh)"
 fi
 
 # -----------------------------------------------------------------------------
