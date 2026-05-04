@@ -2,7 +2,9 @@
 # trmnl install script
 # Installs terminal emulators, tmux, zsh plugins, starship, fonts, CLI tools, and symlinks configs
 
-set -e
+set -eo pipefail
+# Note: `set -u` is intentionally NOT set yet — adding it requires auditing every
+# variable reference for unbound-default safety. Tracked as a follow-up.
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KITTY_CONFIG="$HOME/.config/kitty"
@@ -20,6 +22,71 @@ NC='\033[0m' # No Color
 info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
+
+# -----------------------------------------------------------------------------
+# Pinned versions and SHA256 checksums for downloaded binary artifacts.
+# To bump: change the version, re-run on a trusted machine, paste the new SHA.
+# Verify upstream signatures or release notes before bumping production checksums.
+# -----------------------------------------------------------------------------
+NERD_FONT_VERSION="v3.4.0"
+NERD_FONT_SHA256="76f05ff3ace48a464a6ca57977998784ff7bdbb65a6d915d7e401cd3927c493c"
+
+GITMUX_VERSION="v0.11.5"
+# SHA256 per platform_arch tuple (linux_amd64, linux_arm64, macOS_amd64, macOS_arm64)
+GITMUX_SHA256_linux_amd64="d46a10f5fe07ab5b8a902ac29c937e4d3c8d7f33ea30fa335d682601697b5a71"
+GITMUX_SHA256_linux_arm64="89a03a76828267927d57904f0f716a9b9aad627d1697d5c0c883d60c09bb4ff6"
+GITMUX_SHA256_macOS_amd64="0ff0b4c4e30ca0615fc0cd966b7bc3f10b6c02b8a3164802b94e621aa5aee698"
+GITMUX_SHA256_macOS_arm64="89f0a88e1fbbd74d13dfbb92a5ccb2c3d5bc397546b8a4fb5372d98bacf79c0e"
+
+# Expected GPG fingerprint for the eza apt signing key
+# (https://github.com/eza-community/eza/blob/main/INSTALL.md)
+EZA_GPG_FINGERPRINT="1548BC8A4B4D2688F9B0DAF7EC29E2090CE3FD43"
+
+# -----------------------------------------------------------------------------
+# Cleanup tracking — register temp dirs and they get rm -rf'd on EXIT.
+# -----------------------------------------------------------------------------
+TRMNL_TEMP_DIRS=()
+trmnl_cleanup() {
+    local d
+    for d in "${TRMNL_TEMP_DIRS[@]}"; do
+        [ -d "$d" ] && rm -rf "$d"
+    done
+}
+trap trmnl_cleanup EXIT
+
+# Create a temp dir tracked for cleanup on EXIT.
+trmnl_mktemp() {
+    local d
+    d=$(mktemp -d)
+    TRMNL_TEMP_DIRS+=("$d")
+    echo "$d"
+}
+
+# Verify a file's SHA256 against an expected value. Hard-fails on mismatch.
+verify_sha256() {
+    local file="$1" expected="$2" actual
+    if [ ! -f "$file" ]; then
+        error "verify_sha256: file does not exist: $file"
+    fi
+    if command -v sha256sum &>/dev/null; then
+        actual=$(sha256sum "$file" | awk '{print $1}')
+    elif command -v shasum &>/dev/null; then
+        actual=$(shasum -a 256 "$file" | awk '{print $1}')
+    else
+        error "Neither sha256sum nor shasum available; cannot verify $file"
+    fi
+    if [ "$actual" != "$expected" ]; then
+        error "Checksum mismatch for $file
+       expected: $expected
+       actual:   $actual
+       Refusing to install — file may be tampered or version drifted."
+    fi
+    info "Verified SHA256 for $(basename "$file")"
+}
+
+# Track which install steps failed so we can surface them at the end.
+TRMNL_FAILED=()
+record_failure() { TRMNL_FAILED+=("$1"); }
 
 # Check if we have non-interactive sudo access
 has_sudo() {
@@ -265,6 +332,40 @@ detect_os() {
 }
 
 # Install JetBrainsMono Nerd Font
+# Download, verify, and extract the JetBrainsMono Nerd Font zip safely.
+# Pinned version + SHA256; extracts only *.ttf files into ~/.local/share/fonts
+# to neutralize any zip-slip / unexpected-payload risk.
+install_nerd_font_zip() {
+    local font_dir="$HOME/.local/share/fonts"
+    local font_url="https://github.com/ryanoasis/nerd-fonts/releases/download/${NERD_FONT_VERSION}/JetBrainsMono.zip"
+    local temp_dir
+    temp_dir=$(trmnl_mktemp)
+    local zip="$temp_dir/JetBrainsMono.zip"
+
+    mkdir -p "$font_dir"
+    info "Downloading JetBrainsMono Nerd Font ${NERD_FONT_VERSION}..."
+    curl -fsSL "$font_url" -o "$zip"
+    verify_sha256 "$zip" "$NERD_FONT_SHA256"
+
+    info "Extracting font (ttf only, into staging dir)..."
+    local stage="$temp_dir/stage"
+    mkdir -p "$stage"
+    # Refuse archive entries that escape the staging dir; only extract .ttf files.
+    unzip -qq -j "$zip" '*.ttf' -d "$stage"
+
+    # Sanity check: stage must contain at least one regular file and nothing else.
+    local f
+    for f in "$stage"/*; do
+        if [ ! -f "$f" ] || [ -L "$f" ]; then
+            error "Unexpected entry in font archive after extraction: $f"
+        fi
+    done
+
+    cp -f "$stage"/*.ttf "$font_dir/"
+    info "Updating font cache..."
+    fc-cache -f
+}
+
 install_font() {
     info "Checking for JetBrainsMono Nerd Font..."
 
@@ -283,31 +384,11 @@ install_font() {
                 error "Homebrew not found. Install from https://brew.sh"
             fi
             ;;
-        debian)
-            FONT_DIR="$HOME/.local/share/fonts"
-            mkdir -p "$FONT_DIR"
-            FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
-            TEMP_DIR=$(mktemp -d)
-            info "Downloading font..."
-            curl -fsSL "$FONT_URL" -o "$TEMP_DIR/JetBrainsMono.zip"
-            info "Extracting font..."
-            unzip -q "$TEMP_DIR/JetBrainsMono.zip" -d "$FONT_DIR"
-            info "Updating font cache..."
-            fc-cache -f
-            rm -rf "$TEMP_DIR"
+        debian|fedora)
+            install_nerd_font_zip
             ;;
         arch)
             sudo pacman -S --noconfirm ttf-jetbrains-mono-nerd
-            ;;
-        fedora)
-            FONT_DIR="$HOME/.local/share/fonts"
-            mkdir -p "$FONT_DIR"
-            FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
-            TEMP_DIR=$(mktemp -d)
-            curl -fsSL "$FONT_URL" -o "$TEMP_DIR/JetBrainsMono.zip"
-            unzip -q "$TEMP_DIR/JetBrainsMono.zip" -d "$FONT_DIR"
-            fc-cache -f
-            rm -rf "$TEMP_DIR"
             ;;
         *)
             warn "Could not auto-install font. Install JetBrainsMono Nerd Font manually."
@@ -577,9 +658,29 @@ install_eza() {
     case "$OS" in
         macos)   brew install eza ;;
         debian)
+            local key_tmp keyring_path actual_fpr
+            key_tmp=$(trmnl_mktemp)
+            info "Fetching eza apt signing key..."
+            curl -fsSL https://raw.githubusercontent.com/eza-community/eza/main/deb.asc -o "$key_tmp/deb.asc"
+
+            keyring_path="$key_tmp/gierens.gpg"
+            gpg --dearmor < "$key_tmp/deb.asc" > "$keyring_path"
+
+            actual_fpr=$(gpg --show-keys --with-colons "$keyring_path" 2>/dev/null \
+                | awk -F: '/^fpr:/ {print $10; exit}')
+            if [ "$actual_fpr" != "$EZA_GPG_FINGERPRINT" ]; then
+                error "eza GPG key fingerprint mismatch
+       expected: $EZA_GPG_FINGERPRINT
+       actual:   ${actual_fpr:-<none>}
+       Refusing to add untrusted apt source."
+            fi
+            info "Verified eza GPG fingerprint."
+
             sudo mkdir -p /etc/apt/keyrings
-            wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg 2>/dev/null
-            echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list >/dev/null
+            sudo install -m 0644 "$keyring_path" /etc/apt/keyrings/gierens.gpg
+            # Use HTTPS transport in addition to apt's signature check (defense in depth).
+            echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] https://deb.gierens.de stable main" \
+                | sudo tee /etc/apt/sources.list.d/gierens.list >/dev/null
             sudo apt update && sudo apt install -y eza
             ;;
         arch)    sudo pacman -S --noconfirm eza ;;
@@ -776,26 +877,36 @@ install_gitmux() {
             brew install gitmux
             ;;
         *)
-            # Download binary for Linux
-            GITMUX_VERSION="v0.11.5"
-            ARCH=$(uname -m)
-            case "$ARCH" in
-                x86_64)  GITMUX_ARCH="amd64" ;;
-                aarch64) GITMUX_ARCH="arm64" ;;
-                armv7l)  GITMUX_ARCH="armv6" ;;
+            local arch tuple sha_var expected_sha url temp_dir
+            arch=$(uname -m)
+            case "$arch" in
+                x86_64)  tuple="linux_amd64";  sha_var="GITMUX_SHA256_linux_amd64" ;;
+                aarch64) tuple="linux_arm64";  sha_var="GITMUX_SHA256_linux_arm64" ;;
                 *)
-                    warn "Unsupported architecture for gitmux: $ARCH"
+                    warn "Unsupported architecture for gitmux ($arch); skipping"
                     return
                     ;;
             esac
-            GITMUX_URL="https://github.com/arl/gitmux/releases/download/${GITMUX_VERSION}/gitmux_${GITMUX_VERSION}_linux_${GITMUX_ARCH}.tar.gz"
-            TEMP_DIR=$(mktemp -d)
-            curl -fsSL "$GITMUX_URL" -o "$TEMP_DIR/gitmux.tar.gz"
-            tar -xzf "$TEMP_DIR/gitmux.tar.gz" -C "$TEMP_DIR"
+            expected_sha="${!sha_var}"
+            url="https://github.com/arl/gitmux/releases/download/${GITMUX_VERSION}/gitmux_${GITMUX_VERSION}_${tuple}.tar.gz"
+
+            temp_dir=$(trmnl_mktemp)
+            info "Downloading gitmux ${GITMUX_VERSION} (${tuple})..."
+            curl -fsSL "$url" -o "$temp_dir/gitmux.tar.gz"
+            verify_sha256 "$temp_dir/gitmux.tar.gz" "$expected_sha"
+
+            info "Extracting gitmux to staging dir..."
+            local stage="$temp_dir/stage"
+            mkdir -p "$stage"
+            # --no-same-owner / --no-same-permissions defang ownership shenanigans.
+            # Extract into stage, then validate exactly one regular file named "gitmux".
+            tar -xzf "$temp_dir/gitmux.tar.gz" -C "$stage" --no-same-owner --no-same-permissions
+            if [ ! -f "$stage/gitmux" ] || [ -L "$stage/gitmux" ]; then
+                error "gitmux archive did not contain expected layout (missing or symlinked gitmux binary)"
+            fi
+
             mkdir -p "$HOME/.local/bin"
-            mv "$TEMP_DIR/gitmux" "$HOME/.local/bin/"
-            chmod +x "$HOME/.local/bin/gitmux"
-            rm -rf "$TEMP_DIR"
+            install -m 0755 "$stage/gitmux" "$HOME/.local/bin/gitmux"
             ;;
     esac
 }
@@ -1037,29 +1148,42 @@ main() {
     echo "================================"
     echo ""
 
+    # try_install <component> — runs an install fn; on failure, records it and
+    # warns but lets us continue. Use ONLY for optional tools whose failure
+    # doesn't constitute a security event. Anything that downloads + verifies +
+    # executes (font, gitmux, eza apt key) hard-fails inside its own function
+    # via `error` so the user notices a tampered artifact.
+    try_install() {
+        local fn="$1"
+        if ! "$fn"; then
+            warn "${fn} failed; continuing without it"
+            record_failure "$fn"
+        fi
+    }
+
     # Core tools (always installed)
-    install_font || warn "Font installation failed (continuing)"
-    install_tmux || warn "tmux installation failed (continuing)"
-    install_tpm || warn "TPM installation failed (continuing)"
-    install_gitmux || warn "gitmux installation failed (continuing)"
-    install_starship || warn "Starship installation failed (continuing)"
-    install_zsh || warn "zsh installation failed (continuing)"
-    install_zsh_plugins || warn "zsh plugins installation failed (continuing)"
-    install_fzf || warn "fzf installation failed (continuing)"
-    install_zoxide || warn "zoxide installation failed (continuing)"
-    install_fastfetch || warn "fastfetch installation failed (continuing)"
-    install_fd || warn "fd installation failed (continuing)"
-    install_bat || warn "bat installation failed (continuing)"
-    install_delta || warn "delta installation failed (continuing)"
-    install_eza || warn "eza installation failed (continuing)"
-    install_direnv || warn "direnv installation failed (continuing)"
+    try_install install_font
+    try_install install_tmux
+    try_install install_tpm
+    try_install install_gitmux
+    try_install install_starship
+    try_install install_zsh
+    try_install install_zsh_plugins
+    try_install install_fzf
+    try_install install_zoxide
+    try_install install_fastfetch
+    try_install install_fd
+    try_install install_bat
+    try_install install_delta
+    try_install install_eza
+    try_install install_direnv
 
     # Terminal emulator(s) based on selection
     if [[ "$TERMINAL_MODE" == "kitty" || "$TERMINAL_MODE" == "all" ]]; then
-        install_kitty || warn "Kitty installation failed (continuing)"
+        try_install install_kitty
     fi
     if [[ "$TERMINAL_MODE" == "alacritty" || "$TERMINAL_MODE" == "all" ]]; then
-        install_alacritty || warn "Alacritty installation failed (continuing)"
+        try_install install_alacritty
     fi
 
     # Symlinks
@@ -1074,12 +1198,24 @@ main() {
     link_starship
     link_gitmux
 
-    install_tmux_plugins || warn "tmux plugins installation failed (run 'prefix + I' manually)"
+    install_tmux_plugins || { warn "tmux plugins installation failed (run 'prefix + I' manually)"; record_failure "install_tmux_plugins"; }
 
     # Offer to change default shell
     prompt_change_shell
 
     print_instructions
+
+    # Surface anything that didn't install cleanly. Hard failures (checksum
+    # mismatches, GPG fingerprint mismatches, etc.) already exited via `error`;
+    # this lists the soft "tool not in your distro repos"-class failures.
+    if [ ${#TRMNL_FAILED[@]} -gt 0 ]; then
+        echo ""
+        warn "Some components did not install cleanly:"
+        for fn in "${TRMNL_FAILED[@]}"; do
+            echo "        - ${fn}"
+        done
+        echo "      Review the log above before relying on this installation."
+    fi
 }
 
 main "$@"
