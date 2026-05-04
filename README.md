@@ -66,9 +66,15 @@ Three minutes later: same terminal experience everywhere.
 | **zsh** | Modern shell with syntax highlighting and suggestions as you type |
 | **Starship** | Smart prompt that shows git status, current directory, and OS icon |
 | **fzf** | Fuzzy finder for files, history, and anything searchable |
+| **fd** | Fast, user-friendly alternative to `find`; powers fzf file/dir search |
+| **bat** | `cat` with syntax highlighting and git diff markers |
+| **eza** | Modern `ls` replacement with icons, git status, and tree view |
+| **delta** | Side-by-side diffs with syntax highlighting (git pager) |
 | **zoxide** | Smarter `cd` that learns your most-used directories |
+| **direnv** | Per-directory environment variables, loaded automatically |
 | **gitmux** | Git branch and status in your tmux status bar |
 | **fastfetch** | System info displayed on shell startup |
+| **git worktree helpers** | `gwt-clone`/`gwt-add`/`gwt-rm`/`gwt-ls` for the bare-clone + worktree workflow |
 
 ---
 

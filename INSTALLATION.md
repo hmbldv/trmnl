@@ -114,7 +114,12 @@ All configs are symlinked back to the repo—edit in either place.
 | TPM | Tmux Plugin Manager |
 | gitmux | Git branch/status in tmux status bar |
 | fzf | Fuzzy finder (Ctrl+R for history, Ctrl+T for files) |
+| fd | Fast `find` replacement; backs fzf file/dir search |
+| bat | Syntax-highlighted `cat`; also used as `MANPAGER` |
+| eza | Modern `ls` with icons, git status, tree view |
+| delta | Syntax-highlighted side-by-side git diffs |
 | zoxide | Smart `cd` that learns your directories |
+| direnv | Per-directory environment variables |
 | fastfetch | System info on shell startup |
 | Kitty | Terminal emulator (if selected) |
 | Alacritty | Terminal emulator (if selected) |
