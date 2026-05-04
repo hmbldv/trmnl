@@ -399,6 +399,7 @@ install_font() {
             ;;
         *)
             warn "Could not auto-install font. Install JetBrainsMono Nerd Font manually."
+            return 1
             ;;
     esac
 }
@@ -497,6 +498,7 @@ install_alacritty() {
                 cargo install alacritty
             else
                 warn "Alacritty not in apt repos and cargo not found. Install manually or install Rust first."
+                return 1
             fi
             ;;
         arch)
@@ -507,6 +509,7 @@ install_alacritty() {
             ;;
         *)
             warn "Could not auto-install Alacritty. Install manually."
+            return 1
             ;;
     esac
 }
@@ -537,6 +540,7 @@ install_fzf() {
             ;;
         *)
             warn "Could not auto-install fzf. Install manually."
+            return 1
             ;;
     esac
 }
@@ -567,6 +571,7 @@ install_zoxide() {
             ;;
         *)
             warn "Could not auto-install zoxide. Install manually."
+            return 1
             ;;
     esac
 }
@@ -587,9 +592,8 @@ install_fastfetch() {
             brew install fastfetch
             ;;
         debian)
-            if ! sudo apt install -y fastfetch 2>/dev/null; then
-                warn "fastfetch not available in apt repos. Install manually from https://github.com/fastfetch-cli/fastfetch"
-            fi
+            sudo apt install -y fastfetch 2>/dev/null \
+                || { warn "fastfetch not available in apt repos. Install manually from https://github.com/fastfetch-cli/fastfetch"; return 1; }
             ;;
         arch)
             sudo pacman -S --noconfirm fastfetch
@@ -599,6 +603,7 @@ install_fastfetch() {
             ;;
         *)
             warn "Could not auto-install fastfetch. Install manually."
+            return 1
             ;;
     esac
 }
@@ -647,7 +652,7 @@ install_delta() {
     info "Installing delta..."
     case "$OS" in
         macos)   brew install git-delta ;;
-        debian)  sudo apt install -y git-delta 2>/dev/null || warn "delta not in apt repos. Install from: https://github.com/dandavison/delta/releases" ;;
+        debian)  sudo apt install -y git-delta 2>/dev/null || { warn "delta not in apt repos. Install from: https://github.com/dandavison/delta/releases"; return 1; } ;;
         arch)    sudo pacman -S --noconfirm git-delta ;;
         fedora)  sudo dnf install -y git-delta ;;
         *)       warn "Could not auto-install delta." ;;
@@ -788,6 +793,7 @@ install_zsh() {
             ;;
         *)
             warn "Could not auto-install zsh. Install manually."
+            return 1
             ;;
     esac
 }
