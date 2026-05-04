@@ -175,6 +175,13 @@ has_display() {
 
 # Prompt user to select terminal mode
 select_terminal_mode() {
+    # Refuse to prompt if stdin isn't a TTY — otherwise `read` consumes
+    # whatever happens to be on stdin (including a piped script's own body)
+    # and silently picks a mode the user didn't choose.
+    if [[ ! -t 0 ]]; then
+        error "Installer requires interactive stdin. Run from a terminal: ./install.sh"
+    fi
+
     TERMINAL_MODE="kitty"  # Default
 
     echo ""
@@ -796,56 +803,48 @@ install_zsh_plugins() {
                 info "zsh plugins installed via Homebrew"
             fi
             ;;
-        debian)
-            if has_sudo; then
-                sudo apt update && sudo apt install -y zsh-syntax-highlighting zsh-autosuggestions 2>/dev/null || {
-                    info "Package install failed, installing manually..."
-                    mkdir -p ~/.zsh
-                    if [[ ! -d ~/.zsh/zsh-syntax-highlighting ]]; then
-                        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
-                    fi
-                    if [[ ! -d ~/.zsh/zsh-autosuggestions ]]; then
-                        git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.zsh/zsh-autosuggestions
-                    fi
-                }
+        debian|fedora)
+            local pkg_cmd
+            case "$OS" in
+                debian) pkg_cmd="sudo apt update && sudo apt install -y zsh-syntax-highlighting zsh-autosuggestions" ;;
+                fedora) pkg_cmd="sudo dnf install -y zsh-syntax-highlighting zsh-autosuggestions" ;;
+            esac
+
+            if has_sudo && eval "$pkg_cmd" 2>/dev/null; then
+                info "zsh plugins installed via system package manager"
             else
-                info "No sudo access, installing zsh plugins to ~/.zsh..."
-                mkdir -p ~/.zsh
-                if [[ ! -d ~/.zsh/zsh-syntax-highlighting ]]; then
-                    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
+                if has_sudo; then
+                    info "Package install failed, falling back to pinned git clone..."
+                else
+                    warn "No passwordless sudo; falling back to pinned git clone in \$HOME/.zsh"
                 fi
-                if [[ ! -d ~/.zsh/zsh-autosuggestions ]]; then
-                    git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.zsh/zsh-autosuggestions
-                fi
+                mkdir -p "$HOME/.zsh"
+                git_clone_pinned https://github.com/zsh-users/zsh-syntax-highlighting.git \
+                    "$ZSH_SYNTAX_HIGHLIGHTING_TAG" "$HOME/.zsh/zsh-syntax-highlighting"
+                git_clone_pinned https://github.com/zsh-users/zsh-autosuggestions.git \
+                    "$ZSH_AUTOSUGGESTIONS_TAG" "$HOME/.zsh/zsh-autosuggestions"
             fi
             ;;
         arch)
             sudo pacman -S --noconfirm zsh-syntax-highlighting zsh-autosuggestions
             ;;
-        fedora)
-            if has_sudo; then
-                sudo dnf install -y zsh-syntax-highlighting zsh-autosuggestions 2>/dev/null || {
-                    info "Package install failed, installing manually..."
-                    mkdir -p ~/.zsh
-                    if [[ ! -d ~/.zsh/zsh-syntax-highlighting ]]; then
-                        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
-                    fi
-                    if [[ ! -d ~/.zsh/zsh-autosuggestions ]]; then
-                        git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.zsh/zsh-autosuggestions
-                    fi
-                }
-            else
-                info "No sudo access, installing zsh plugins to ~/.zsh..."
-                mkdir -p ~/.zsh
-                if [[ ! -d ~/.zsh/zsh-syntax-highlighting ]]; then
-                    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
-                fi
-                if [[ ! -d ~/.zsh/zsh-autosuggestions ]]; then
-                    git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.zsh/zsh-autosuggestions
-                fi
-            fi
-            ;;
     esac
+}
+
+# Pinned upstream tags / commits for plugins we git-clone. Bump deliberately
+# after reviewing the upstream changelog; tracking master/main pulls arbitrary
+# new code into every shell or tmux startup.
+ZSH_SYNTAX_HIGHLIGHTING_TAG="0.8.0"
+ZSH_AUTOSUGGESTIONS_TAG="v0.7.1"
+TPM_TAG="v3.1.0"
+
+# git_clone_pinned <repo-url> <tag-or-branch> <dest>
+# Shallow-clones a single tag/branch. Hard-fails on error (no silent skip).
+git_clone_pinned() {
+    local url="$1" ref="$2" dest="$3"
+    [ -d "$dest" ] && return 0
+    git clone --depth 1 --branch "$ref" "$url" "$dest" \
+        || error "git clone of $url@$ref failed"
 }
 
 # Install TPM (Tmux Plugin Manager)
@@ -857,8 +856,8 @@ install_tpm() {
         return
     fi
 
-    info "Installing TPM..."
-    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+    info "Installing TPM ${TPM_TAG}..."
+    git_clone_pinned https://github.com/tmux-plugins/tpm "$TPM_TAG" "$HOME/.tmux/plugins/tpm"
 }
 
 # Install gitmux (git status for tmux)
@@ -923,25 +922,33 @@ install_tmux_plugins() {
     fi
 }
 
+# Move an existing real file or directory aside before symlinking.
+# Backups get a unix-timestamp suffix so re-runs never clobber a previous
+# backup (the docs previously claimed simple "*.bak" — that's now true plus
+# unique-per-run).
+backup_existing() {
+    local target="$1"
+    if [ -e "$target" ] && [ ! -L "$target" ]; then
+        local backup="${target}.bak.$(date +%s)"
+        warn "Backing up existing $(basename "$target") to $(basename "$backup")"
+        mv "$target" "$backup"
+    fi
+}
+
 # Symlink kitty config
 link_kitty() {
     info "Linking Kitty config..."
 
     mkdir -p "$KITTY_CONFIG"
 
-    if [ -f "$KITTY_CONFIG/kitty.conf" ] && [ ! -L "$KITTY_CONFIG/kitty.conf" ]; then
-        warn "Backing up existing kitty.conf to kitty.conf.bak"
-        mv "$KITTY_CONFIG/kitty.conf" "$KITTY_CONFIG/kitty.conf.bak"
-    fi
-
+    backup_existing "$KITTY_CONFIG/kitty.conf"
     ln -sf "$REPO_DIR/kitty/kitty.conf" "$KITTY_CONFIG/kitty.conf"
 
-    # Remove existing themes symlink/dir to prevent recursion
+    # Remove existing themes symlink to prevent recursion; backup real dir.
     if [ -L "$KITTY_CONFIG/themes" ]; then
         rm "$KITTY_CONFIG/themes"
-    elif [ -d "$KITTY_CONFIG/themes" ]; then
-        warn "Backing up existing themes directory to themes.bak"
-        mv "$KITTY_CONFIG/themes" "$KITTY_CONFIG/themes.bak"
+    else
+        backup_existing "$KITTY_CONFIG/themes"
     fi
     ln -sf "$REPO_DIR/kitty/themes" "$KITTY_CONFIG/themes"
 
@@ -960,11 +967,7 @@ link_alacritty() {
 
     mkdir -p "$ALACRITTY_CONFIG"
 
-    if [ -f "$ALACRITTY_CONFIG/alacritty.toml" ] && [ ! -L "$ALACRITTY_CONFIG/alacritty.toml" ]; then
-        warn "Backing up existing alacritty.toml to alacritty.toml.bak"
-        mv "$ALACRITTY_CONFIG/alacritty.toml" "$ALACRITTY_CONFIG/alacritty.toml.bak"
-    fi
-
+    backup_existing "$ALACRITTY_CONFIG/alacritty.toml"
     ln -sf "$REPO_DIR/alacritty/alacritty.toml" "$ALACRITTY_CONFIG/alacritty.toml"
 
     info "Alacritty config linked"
@@ -974,11 +977,7 @@ link_alacritty() {
 link_tmux() {
     info "Linking tmux config..."
 
-    if [ -f "$TMUX_CONFIG" ] && [ ! -L "$TMUX_CONFIG" ]; then
-        warn "Backing up existing .tmux.conf to .tmux.conf.bak"
-        mv "$TMUX_CONFIG" "$TMUX_CONFIG.bak"
-    fi
-
+    backup_existing "$TMUX_CONFIG"
     ln -sf "$REPO_DIR/tmux/tmux.conf" "$TMUX_CONFIG"
 
     info "tmux config linked"
@@ -988,11 +987,7 @@ link_tmux() {
 link_zsh() {
     info "Linking zsh config..."
 
-    if [ -f "$ZSHRC" ] && [ ! -L "$ZSHRC" ]; then
-        warn "Backing up existing .zshrc to .zshrc.bak"
-        mv "$ZSHRC" "$ZSHRC.bak"
-    fi
-
+    backup_existing "$ZSHRC"
     ln -sf "$REPO_DIR/zsh/zshrc" "$ZSHRC"
 
     info "zsh config linked"
@@ -1004,11 +999,7 @@ link_starship() {
 
     mkdir -p "$(dirname "$STARSHIP_CONFIG")"
 
-    if [ -f "$STARSHIP_CONFIG" ] && [ ! -L "$STARSHIP_CONFIG" ]; then
-        warn "Backing up existing starship.toml to starship.toml.bak"
-        mv "$STARSHIP_CONFIG" "$STARSHIP_CONFIG.bak"
-    fi
-
+    backup_existing "$STARSHIP_CONFIG"
     ln -sf "$REPO_DIR/zsh/starship.toml" "$STARSHIP_CONFIG"
 
     info "Starship config linked"
@@ -1018,11 +1009,7 @@ link_starship() {
 link_gitmux() {
     info "Linking gitmux config..."
 
-    if [ -f "$HOME/.gitmux.conf" ] && [ ! -L "$HOME/.gitmux.conf" ]; then
-        warn "Backing up existing .gitmux.conf to .gitmux.conf.bak"
-        mv "$HOME/.gitmux.conf" "$HOME/.gitmux.conf.bak"
-    fi
-
+    backup_existing "$HOME/.gitmux.conf"
     ln -sf "$REPO_DIR/gitmux/gitmux.conf" "$HOME/.gitmux.conf"
 
     info "gitmux config linked"
@@ -1061,8 +1048,24 @@ prompt_change_shell() {
 
     read -p "Change default shell to zsh? [y/N]: " change_shell
     if [[ "$change_shell" =~ ^[Yy]$ ]]; then
-        local zsh_path
-        zsh_path=$(which zsh)
+        local zsh_path=""
+        # Prefer well-known absolute paths over PATH lookup so a poisoned PATH
+        # can't route us to an attacker-controlled shell.
+        local candidate
+        for candidate in /usr/bin/zsh /bin/zsh /usr/local/bin/zsh /opt/homebrew/bin/zsh; do
+            if [ -x "$candidate" ]; then zsh_path="$candidate"; break; fi
+        done
+        # Fall back to PATH lookup only if no canonical install was found.
+        [ -z "$zsh_path" ] && zsh_path=$(command -v zsh)
+
+        if [ -z "$zsh_path" ]; then
+            warn "Could not locate zsh; skipping chsh."
+            return
+        fi
+        if [ -f /etc/shells ] && ! grep -qxF "$zsh_path" /etc/shells; then
+            warn "$zsh_path is not listed in /etc/shells; refusing to chsh"
+            return
+        fi
         if chsh -s "$zsh_path"; then
             info "Default shell changed to zsh"
             if [[ "$IS_SSH" == "true" ]]; then

@@ -298,8 +298,14 @@ The fzf color config requires fzf 0.44+. If your distro ships an older version, 
 To restore your previous configuration:
 
 ```bash
-# The installer backs up existing configs to *.bak files
-# Check for .bak files and restore if needed
+# The installer backs up existing real (non-symlink) configs to
+# <name>.bak.<unix-timestamp> files in the same directory. Re-running
+# the installer never overwrites a previous backup — each run gets a
+# fresh suffix. List them with:
+ls ~/.config/kitty/*.bak.* ~/.config/alacritty/*.bak.* ~/.zshrc.bak.* 2>/dev/null
+
+# Pick the most recent (or whichever) and restore by hand, e.g.:
+mv ~/.zshrc.bak.1715000000 ~/.zshrc
 
 # Remove symlinks
 rm ~/.tmux.conf ~/.zshrc ~/.config/starship.toml ~/.gitmux.conf
@@ -308,6 +314,47 @@ rm -rf ~/.config/kitty ~/.config/alacritty
 # Remove the repo
 rm -rf ~/trmnl
 ```
+
+---
+
+## Machine-Local Overrides
+
+The installer's `zshrc` sources `~/.zshrc.local` if it exists. Use this
+for per-machine aliases, paths, or anything tied to a username — keep it
+out of the public dotfiles repo. `~/.zshrc.local` is automatically
+covered by the repo's `.gitignore`.
+
+```bash
+cat > ~/.zshrc.local <<'EOF'
+# Personal aliases and paths
+alias work='cd ~/projects/active'
+export FOO_TOKEN="…"
+EOF
+```
+
+---
+
+## Pinned Versions
+
+For supply-chain safety, the installer pins downloaded artifacts to
+specific versions and verifies SHA256 / GPG fingerprints:
+
+| Artifact | Version | Verification |
+|----------|---------|--------------|
+| JetBrainsMono Nerd Font | `v3.4.0` | SHA256 |
+| gitmux | `v0.11.5` | SHA256 (per-arch) |
+| eza apt signing key | upstream `deb.asc` | GPG fingerprint match |
+| zsh-syntax-highlighting | `0.8.0` | git tag |
+| zsh-autosuggestions | `v0.7.1` | git tag |
+| TPM | `v3.1.0` | git tag |
+| catppuccin/tmux | `v2.1.3` | git tag |
+| tmux-battery | `v2.0.0` | git tag |
+| tmux-cpu | pinned commit | git SHA |
+
+Bumping any of these requires editing the corresponding constant in
+`install.sh` (or `tmux/tmux.conf`) — they are not auto-updated. This is
+deliberate: an upstream account compromise should not silently land
+new code on every machine that has ever cloned this repo.
 
 ---
 

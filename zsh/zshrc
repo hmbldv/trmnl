@@ -40,7 +40,12 @@ bindkey '^[[B' history-search-forward   # Down arrow
 # -----------------------------------------------------------------------------
 # Completion
 # -----------------------------------------------------------------------------
-autoload -Uz compinit && compinit
+# Use a versioned completion dump file. compinit will refuse to load completion
+# functions from world-writable dirs or files owned by another user — answer
+# "n" to the "ignore insecure files?" prompt and investigate; do NOT switch to
+# `compinit -u` to silence it (that defeats the security check).
+autoload -Uz compinit
+compinit -d "$HOME/.zcompdump-${ZSH_VERSION}"
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'  # Case insensitive
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"    # Colored completions
