@@ -1,0 +1,41 @@
+# Secrets and credentials — never commit
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+*.gpg
+.netrc
+
+# Local overrides — machine-specific config sourced by zshrc/install.sh
+.zshrc.local
+*.local
+
+# Installer backups
+*.bak
+*.bak.*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Node (in case anyone runs npm/pnpm/yarn inside the repo)
+node_modules/
+npm-debug.log*
+pnpm-debug.log*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/

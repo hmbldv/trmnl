@@ -147,26 +147,32 @@ if command -v starship &>/dev/null; then
     eval "$(starship init zsh)"
 fi
 
+# -----------------------------------------------------------------------------
 # pnpm
-export PNPM_HOME="/home/doop/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
+# -----------------------------------------------------------------------------
+export PNPM_HOME="$HOME/.local/share/pnpm"
+if [[ -d "$PNPM_HOME" ]]; then
+    case ":$PATH:" in
+        *":$PNPM_HOME:"*) ;;
+        *) export PATH="$PNPM_HOME:$PATH" ;;
+    esac
+fi
 
+# -----------------------------------------------------------------------------
+# nvm
+# -----------------------------------------------------------------------------
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-# bun completions
-[ -s "/home/doop/.bun/_bun" ] && source "/home/doop/.bun/_bun"
-
+# -----------------------------------------------------------------------------
 # bun
+# -----------------------------------------------------------------------------
 export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-alias claude-mem='/home/doop/.bun/bin/bun "/home/doop/.claude/plugins/cache/thedotmack/claude-mem/10.5.5/scripts/worker-service.cjs"'
+if [[ -d "$BUN_INSTALL" ]]; then
+    export PATH="$BUN_INSTALL/bin:$PATH"
+    [ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
+fi
 
 # -----------------------------------------------------------------------------
 # Claude Code Stack — Environment Variables
@@ -176,4 +182,13 @@ export ENABLE_TOOL_SEARCH=true
 export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=85
 export CLAUDE_CODE_NO_FLICKER=1
 
-. "$HOME/.local/bin/env"
+# -----------------------------------------------------------------------------
+# uv / Rust env (created by the uv installer)
+# -----------------------------------------------------------------------------
+[ -f "$HOME/.local/bin/env" ] && \. "$HOME/.local/bin/env"
+
+# -----------------------------------------------------------------------------
+# Local overrides — put machine-specific aliases, paths, and secrets here.
+# This file is gitignored so it stays off the public dotfiles repo.
+# -----------------------------------------------------------------------------
+[ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
